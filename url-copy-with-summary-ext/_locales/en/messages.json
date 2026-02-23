@@ -80,6 +80,15 @@
     "copyPreview": {
         "message": "Preview & Copy"
     },
+    "templateDarkPop": {
+        "message": "Dark Mode Pop"
+    },
+    "templateGold": {
+        "message": "Elegant Gold"
+    },
+    "downloadQr": {
+        "message": "Download QR Code"
+    },
     "openRouterApiKey": {
         "message": "OpenRouter API Key"
     },

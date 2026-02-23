@@ -302,13 +302,15 @@ const onInit = async () => {
     };
 
     // Eye-catch
+    let lastEyeCatchTitle = data.title;
+
     document.getElementById("generate-image").onclick = async () => {
         const btn = document.getElementById("generate-image");
         const canvas = document.getElementById("eyecatch-canvas");
         const template = document.getElementById("eyecatch-template").value;
         const aiAssist = document.getElementById("opt-eyecatch-ai").checked;
 
-        let displayTitle = data.title;
+        lastEyeCatchTitle = data.title;
 
         if (aiAssist) {
             btn.disabled = true;
@@ -321,7 +323,7 @@ const onInit = async () => {
                 const model = provider === 'groq' ? (settings.groqModel || 'llama-3.1-8b-instant') : (settings.openrouterModel || 'openai/gpt-4o-mini');
                 const language = settings.summaryLanguage || 'Japanese';
 
-                displayTitle = await window.aiService.getCatchyTitle(data.title, provider, apiKey, model, language);
+                lastEyeCatchTitle = await window.aiService.getCatchyTitle(data.title, provider, apiKey, model, language);
             } catch (e) {
                 console.error("AI Assist Title Error:", e);
                 // Fallback to original title
@@ -332,7 +334,16 @@ const onInit = async () => {
         }
 
         document.getElementById("eyecatch-preview").style.display = "block";
-        window.imageService.generateEyeCatch(canvas, displayTitle, data.url, template);
+        window.imageService.generateEyeCatch(canvas, lastEyeCatchTitle, data.url, template);
+    };
+
+    document.getElementById("eyecatch-template").onchange = () => {
+        const previewDiv = document.getElementById("eyecatch-preview");
+        if (previewDiv.style.display !== "none") {
+            const canvas = document.getElementById("eyecatch-canvas");
+            const template = document.getElementById("eyecatch-template").value;
+            window.imageService.generateEyeCatch(canvas, lastEyeCatchTitle, data.url, template);
+        }
     };
 
     document.getElementById("download-eyecatch").onclick = () => {
@@ -340,14 +351,23 @@ const onInit = async () => {
         downloadCanvas(canvas, `eyecatch-${Date.now()}.png`);
     };
 
+    // QR Section
     if (settings.showQr !== false) {
+        const qrSize = data.rawUrl.length > 100 ? 180 : 128;
         new QRCode(document.getElementById("qrcode"), {
             text: data.rawUrl,
-            width: 128,
-            height: 128,
+            width: qrSize,
+            height: qrSize,
             correctLevel: QRCode.CorrectLevel.L
         });
     }
+
+    document.getElementById("download-qr").onclick = () => {
+        const qrCanvas = document.querySelector("#qrcode canvas");
+        if (qrCanvas) {
+            downloadCanvas(qrCanvas, `qrcode-${Date.now()}.png`);
+        }
+    };
 }
 
 document.addEventListener("DOMContentLoaded", onInit);

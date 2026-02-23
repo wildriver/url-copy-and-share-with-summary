@@ -16,6 +16,15 @@ const generateEyeCatch = (canvas, title, url, template = 'modern') => {
         ctx.lineWidth = 40;
         ctx.strokeRect(20, 20, width - 40, height - 40);
 
+        // Add Quotation Marks
+        ctx.fillStyle = '#001f3f';
+        ctx.font = 'bold 160px serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('「', 60, 160);
+
+        ctx.textAlign = 'right';
+        ctx.fillText('」', width - 60, height - 80);
+
         ctx.fillStyle = '#001f3f'; // Navy text
     } else if (template === 'navy') {
         // Template: Navy Professional (Navy bg, white text)
@@ -27,6 +36,34 @@ const generateEyeCatch = (canvas, title, url, template = 'modern') => {
         ctx.strokeRect(50, 50, width - 100, height - 100);
 
         ctx.fillStyle = '#ffffff'; // White text
+    } else if (template === 'darkpop') {
+        // Template: Dark Mode Pop (Dark, vibrant neon accents)
+        ctx.fillStyle = '#111827'; // Dark grayish blue
+        ctx.fillRect(0, 0, width, height);
+
+        // Neon borders
+        ctx.strokeStyle = '#8b5cf6'; // Vivid purple
+        ctx.lineWidth = 8;
+        ctx.strokeRect(40, 40, width - 80, height - 80);
+        ctx.strokeStyle = '#3b82f6'; // Bright blue
+        ctx.lineWidth = 4;
+        ctx.strokeRect(52, 52, width - 104, height - 104);
+
+        ctx.fillStyle = '#f9fafb'; // Off-white text
+    } else if (template === 'gold') {
+        // Template: Elegant Gold (Rich dark background with golden accents)
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#1c1917'); // Dark stone
+        gradient.addColorStop(1, '#292524');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Gold frame
+        ctx.strokeStyle = '#d97706'; // Amber/Gold
+        ctx.lineWidth = 6;
+        ctx.strokeRect(60, 60, width - 120, height - 120);
+
+        ctx.fillStyle = '#fef3c7'; // Light gold text
     } else {
         // Template: Modern Gradient (Default)
         const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -68,19 +105,17 @@ const generateEyeCatch = (canvas, title, url, template = 'modern') => {
     // Center vertical alignment
     let y = (height / 2) - ((lines.length - 1) * lineHeight / 2);
 
+    // Shift slightly down if there are quotation marks to balance visual weight
+    if (template === 'white') {
+        y += 20;
+    }
+
     lines.forEach(l => {
         ctx.fillText(l, width / 2, y);
         y += lineHeight;
     });
 
-    // URL
-    ctx.font = '35px sans-serif';
-    if (template === 'white') {
-        ctx.fillStyle = 'rgba(0, 31, 63, 0.6)';
-    } else {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    }
-    ctx.fillText(url, width / 2, height - 100);
+    // NOTE: URL drawing has been removed per v2.3.0 requirements
 
     return canvas.toDataURL('image/png');
 };

@@ -80,6 +80,15 @@
     "copyPreview": {
         "message": "プレビューとコピー"
     },
+    "templateDarkPop": {
+        "message": "ダークポップ"
+    },
+    "templateGold": {
+        "message": "エレガント・ゴールド"
+    },
+    "downloadQr": {
+        "message": "QRコードをダウンロード"
+    },
     "downloadImage": {
         "message": "画像をダウンロード"
     },

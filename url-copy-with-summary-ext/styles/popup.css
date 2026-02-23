@@ -154,9 +154,12 @@ textarea {
     border-radius: 8px;
     color: var(--text);
     padding: 10px;
+    padding-right: 25px;
+    /* Prevent scrollbar overlap */
     font-family: inherit;
     font-size: 12px;
-    resize: none;
+    resize: vertical;
+    /* Allow vertical resizing */
     margin: 10px 0;
     box-sizing: border-box;
 }
@@ -219,10 +222,13 @@ textarea {
     font-size: 13px;
     /* Slightly larger for readability */
     padding: 0;
+    padding-right: 15px;
+    /* Prevent scrollbar overlap */
     margin: 0;
     line-height: 1.5;
     overflow-y: auto;
-    resize: none;
+    resize: vertical;
+    /* Allow vertical resizing */
     outline: none;
 }
 
@@ -263,10 +269,12 @@ textarea {
     max-width: 100%;
     height: auto !important;
 }
+
 .char-count {
     position: absolute;
     bottom: 8px;
     right: 12px;
+    /* Needs to be pushed left if resize handle is bottom-right */
     font-size: 10px;
     color: var(--text-muted);
     background: rgba(0, 0, 0, 0.3);
