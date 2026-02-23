@@ -15,7 +15,7 @@ An enhanced Chrome extension that helps you copy URLs in various formats, genera
 2. Unzip the file.
 3. Open Chrome and go to `chrome://extensions/`.
 4. Enable "Developer mode".
-5. Click "Load unpacked" and select the unzipped folder.
+5. Click "Load unpacked" and select the `url-copy-and-share-with-summary-ext` folder.
 
 ## Setup
 1. Open the extension popup.
