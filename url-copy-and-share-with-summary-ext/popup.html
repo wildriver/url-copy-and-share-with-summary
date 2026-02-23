@@ -21,11 +21,6 @@
             <div id="copied" data-i18n="copied">Copied!</div>
         </div>
 
-        <div class="notice-text" data-i18n="apiKeyNotice"
-            style="font-size: 11px; color: var(--text-muted); padding: 5px 15px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; margin-bottom: 20px;">
-            Features marked with * require an API Key.
-        </div>
-
         <!-- 1. Unified Preview & Copy Section -->
         <section id="preview-section" class="preview-module">
             <div class="section-title" data-i18n="copyPreview">Preview & Copy</div>
@@ -80,23 +75,17 @@
         <section id="eyecatch-section" class="ai-section">
             <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
                 <span data-i18n="eyecatch">Eye-catch</span>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label class="checkbox-item" style="font-size: 11px; text-transform: none;">
-                        <input type="checkbox" id="opt-eyecatch-ai" class="ai-dependent" disabled>
-                        <span data-i18n="eyeCatchAiAssist">AI Assist*</span>
-                    </label>
-                    <div style="display: flex; align-items: center;">
-                        <span data-i18n="template" style="font-size: 10px; margin-right: 5px;">Template</span>
-                        <select id="eyecatch-template" class="small-select" style="margin-left: 0;">
-                            <option value="modern" data-i18n="templateModern">Modern Gradient</option>
-                            <option value="white" data-i18n="templateWhite">Classic White</option>
-                            <option value="navy" data-i18n="templateNavy">Navy Professional</option>
-                        </select>
-                    </div>
+                <div style="display: flex; align-items: center;">
+                    <span data-i18n="template" style="font-size: 10px; margin-right: 5px;">Template</span>
+                    <select id="eyecatch-template" class="small-select" style="margin-left: 0;">
+                        <option value="modern" data-i18n="templateModern">Modern Gradient</option>
+                        <option value="white" data-i18n="templateWhite">Classic White</option>
+                        <option value="navy" data-i18n="templateNavy">Navy Professional</option>
+                    </select>
                 </div>
             </div>
             <button id="generate-image" class="primary-button ai-menu" style="width: 100%;"
-                data-i18n="generateEyecatch">Generate Eye-catch*</button>
+                data-i18n="generateEyecatch">Generate Eye-catch</button>
             <div id="eyecatch-preview" style="display: none; margin-top: 10px;">
                 <div class="canvas-container">
                     <canvas id="eyecatch-canvas"></canvas>

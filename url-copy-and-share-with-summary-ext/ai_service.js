@@ -55,4 +55,9 @@ const getCatchyTitle = async (title, provider, apiKey, model, language = 'Japane
     return callAi(prompt, provider, apiKey, model);
 };
 
-window.aiService = { getSummary, getCatchyTitle };
+const getKeywords = async (text, provider, apiKey, model, language = 'Japanese') => {
+    const prompt = `Extract exactly 3 highly relevant and trending hashtags from the following text in ${language}. THE HASHTAGS MUST BE REPRESENTATIVE OF THE CONTENT. Format the output only as hashtags separated by spaces (e.g., #Apple #iPhone #Technology). DO NOT include any other text.\n\nText: ${text.substring(0, 5000)}`;
+    return callAi(prompt, provider, apiKey, model);
+};
+
+window.aiService = { getSummary, getCatchyTitle, getKeywords };

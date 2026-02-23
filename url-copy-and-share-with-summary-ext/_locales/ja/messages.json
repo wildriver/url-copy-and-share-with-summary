@@ -15,19 +15,16 @@
         "message": "共有"
     },
     "generateSummary": {
-        "message": "AI要約を生成*"
+        "message": "AI要約を生成"
     },
     "generateEyecatch": {
-        "message": "アイキャッチを生成*"
-    },
-    "eyeCatchAiAssist": {
-        "message": "AIアシスト*"
+        "message": "アイキャッチを生成"
     },
     "summarizing": {
         "message": "要約中..."
     },
     "summary": {
-        "message": "要約*"
+        "message": "要約"
     },
     "eyecatch": {
         "message": "アイキャッチ"
@@ -60,7 +57,7 @@
         "message": "共有オプション"
     },
     "hashtags": {
-        "message": "ハッシュタグ"
+        "message": "ハッシュタグ*"
     },
     "slackPostSuccess": {
         "message": "Slackに投稿しました！"

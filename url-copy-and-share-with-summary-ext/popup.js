@@ -3,9 +3,9 @@ const AMAZON_HOST = "www.amazon.co.jp";
 // Internal State
 let lastSummary = "";
 let lastSummaryX = "";
+let lastKeywords = "";
 let isSummarizing = false;
-
-const DEFAULT_HASHTAGS = "#URLCopyAndShare #AI #Efficiency";
+let isGeneratingKeywords = false;
 
 const copyText = async text => {
     try {
@@ -83,7 +83,11 @@ const generatePreviewText = (title, url) => {
     parts.push(url);
 
     if (isHashtagsChecked) {
-        parts.push(DEFAULT_HASHTAGS);
+        if (lastKeywords) {
+            parts.push(lastKeywords);
+        } else if (isGeneratingKeywords) {
+            parts.push("[Generating hashtags...]");
+        }
     }
 
     const useNewline = document.getElementById('opt-newline').checked;
@@ -137,13 +141,13 @@ const updateVisibilityUI = (settings, isShareable) => {
     optEyecatchAi.disabled = !isShareable || !hasApiKey;
 
     const optHashtags = document.getElementById('opt-hashtags');
-    optHashtags.disabled = !isShareable;
+    optHashtags.disabled = !isShareable || !hasApiKey;
 
     const summarizeBtn = document.getElementById('summarize');
     summarizeBtn.disabled = !hasApiKey || !isShareable;
 
     const generateImageBtn = document.getElementById('generate-image');
-    generateImageBtn.disabled = !isShareable; // Allow non-AI image gen if possible? User asked for disable if no key for AI features.
+    generateImageBtn.disabled = !isShareable;
     if (!hasApiKey && document.getElementById('opt-eyecatch-ai').checked) {
         document.getElementById('opt-eyecatch-ai').checked = false;
     }
@@ -197,7 +201,8 @@ const onInit = async () => {
 
         if (targetXMode) {
             const urlLen = 23;
-            const hashtagLen = document.getElementById('opt-hashtags').checked ? DEFAULT_HASHTAGS.length : 0;
+            // Keywords length estimate
+            const hashtagLen = lastKeywords ? lastKeywords.length : 30;
             const titleLen = document.getElementById('opt-title').checked ? data.title.length : 0;
             const separatorLen = 4;
             const fixedPartsLen = urlLen + hashtagLen + titleLen + separatorLen;
@@ -238,6 +243,32 @@ const onInit = async () => {
         }
     };
 
+    const triggerKeywords = async () => {
+        if (isGeneratingKeywords || lastKeywords) return;
+
+        isGeneratingKeywords = true;
+        updatePreview(data.title, data.url);
+
+        try {
+            const provider = providerSelect.value;
+            const apiKey = provider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
+            const model = provider === 'groq' ? (settings.groqModel || 'llama-3.1-8b-instant') : (settings.openrouterModel || 'openai/gpt-4o-mini');
+            const language = settings.summaryLanguage || 'Japanese';
+
+            const results = await chrome.scripting.executeScript({
+                target: { tabId: data.tabId },
+                func: () => document.body.innerText,
+            });
+            lastKeywords = await window.aiService.getKeywords(results[0].result, provider, apiKey, model, language);
+        } catch (e) {
+            console.error("Keyword Error:", e);
+            lastKeywords = "#Article";
+        } finally {
+            isGeneratingKeywords = false;
+            updatePreview(data.title, data.url);
+        }
+    };
+
     // Event Listeners
     providerSelect.onchange = () => {
         updateVisibilityUI(settings, data.isShareable);
@@ -250,6 +281,8 @@ const onInit = async () => {
                 triggerSummarize(false);
             } else if (input.id === 'opt-summary-x' && input.checked && !lastSummaryX) {
                 triggerSummarize(true);
+            } else if (input.id === 'opt-hashtags' && input.checked && !lastKeywords) {
+                triggerKeywords();
             } else {
                 updatePreview(data.title, data.url);
                 updateVisibilityUI(settings, data.isShareable);
