@@ -1,3 +1,5 @@
 *.crx
 *.pem
 *.zip
+NOTE_ARTICLE.md
+.DS_Store
