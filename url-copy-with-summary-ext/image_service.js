@@ -16,14 +16,9 @@ const generateEyeCatch = (canvas, title, url, template = 'modern') => {
         ctx.lineWidth = 40;
         ctx.strokeRect(20, 20, width - 40, height - 40);
 
-        // Add Quotation Marks
-        ctx.fillStyle = '#001f3f';
-        ctx.font = 'bold 160px serif';
-        ctx.textAlign = 'left';
-        ctx.fillText('「', 60, 160);
-
-        ctx.textAlign = 'right';
-        ctx.fillText('」', width - 60, height - 80);
+        // Add inner thin frame instead of quotation marks
+        ctx.lineWidth = 4;
+        ctx.strokeRect(80, 80, width - 160, height - 160);
 
         ctx.fillStyle = '#001f3f'; // Navy text
     } else if (template === 'navy') {
@@ -104,11 +99,6 @@ const generateEyeCatch = (canvas, title, url, template = 'modern') => {
 
     // Center vertical alignment
     let y = (height / 2) - ((lines.length - 1) * lineHeight / 2);
-
-    // Shift slightly down if there are quotation marks to balance visual weight
-    if (template === 'white') {
-        y += 20;
-    }
 
     lines.forEach(l => {
         ctx.fillText(l, width / 2, y);
