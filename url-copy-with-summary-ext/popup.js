@@ -1,4 +1,5 @@
 const AMAZON_HOST = "www.amazon.co.jp";
+const DEFAULT_HASHTAGS = "#URLCopyWithSummary #AI #Efficiency";
 
 // Internal State
 let lastSummary = "";
@@ -128,7 +129,7 @@ const updateVisibilityUI = (settings, isShareable) => {
     aiSections.forEach(sec => sec.style.display = (showAi) ? 'block' : 'none');
 
     const qrSection = document.getElementById('tools-section');
-    qrSection.style.display = (showQr) ? 'block' : 'none');
+    qrSection.style.display = (showQr) ? 'block' : 'none';
 
     // Enable checkboxes if API key is present
     const optSummary = document.getElementById('opt-summary');
