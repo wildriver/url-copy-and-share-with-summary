@@ -7,12 +7,16 @@
     <link rel="stylesheet" href="styles/ress.css">
     <link rel="stylesheet" href="styles/photon.css">
     <script defer src="qrcode.js"></script>
+    <script defer src="ai_service.js"></script>
+    <script defer src="image_service.js"></script>
     <script defer src="popup.js"></script>
 </head>
 
 <body>
     <header>
         <h1>Simple URL Copy</h1>
+        <a href="settings.html" target="_blank"
+            style="font-size: 12px; float: right; margin-top: -25px; color: #fff;">Settings</a>
     </header>
     <main>
         <div id="info">
@@ -40,6 +44,27 @@
             <button id="scrapbox" class="primary-button bettercopy-menu">
                 Scrapbox Style
             </button>
+            <hr>
+            <button id="summarize" class="primary-button ai-menu">
+                Generate AI Summary
+            </button>
+            <button id="generate-image" class="primary-button ai-menu">
+                Generate Eye-catch
+            </button>
+            <div id="social-share" style="margin-top: 10px; display: flex; gap: 5px;">
+                <button id="share-x" class="primary-button social-btn" style="flex: 1;">X</button>
+                <button id="share-fb" class="primary-button social-btn" style="flex: 1;">FB</button>
+                <button id="share-slack" class="primary-button social-btn" style="flex: 1;">Slack</button>
+            </div>
+            <div id="ai-result"
+                style="margin-top: 10px; font-size: 12px; border: 1px solid #ccc; padding: 5px; display: none;">
+                <p><strong>AI Summary:</strong></p>
+                <div id="summary-text"></div>
+            </div>
+            <div id="eyecatch-preview" style="margin-top: 10px; display: none;">
+                <canvas id="eyecatch-canvas" width="300" height="157"
+                    style="border: 1px solid #ccc; width: 100%;"></canvas>
+            </div>
         </div>
         <div id="bettercopy-copy">
             <textarea id="copy-textarea"></textarea>
