@@ -141,6 +141,8 @@ const updateVisibilityUI = (settings, isShareable) => {
         if (firstVisible) providerSelect.value = firstVisible.value;
     }
 
+    updateQuotaDisplay(providerSelect.value);
+
     const selectedProvider = providerSelect.value;
     const apiKey = selectedProvider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
     const hasApiKey = !!apiKey;
@@ -183,6 +185,21 @@ const downloadCanvas = (canvas, filename) => {
     link.click();
 }
 
+const updateQuotaDisplay = async (provider) => {
+    const quotaDisplay = document.getElementById('api-quota-display');
+    if (!quotaDisplay) return;
+
+    const data = await chrome.storage.local.get(['groqRemaining', 'openrouterRemaining']);
+
+    if (provider === 'groq' && data.groqRemaining !== undefined) {
+        quotaDisplay.textContent = `(Rem: ${data.groqRemaining})`;
+    } else if (provider === 'openrouter' && data.openrouterRemaining !== undefined) {
+        quotaDisplay.textContent = `(Rem: ${data.openrouterRemaining})`;
+    } else {
+        quotaDisplay.textContent = '';
+    }
+}
+
 const onInit = async () => {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const msg = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
@@ -202,6 +219,10 @@ const onInit = async () => {
 
     const providerSelect = document.getElementById('popup-ai-provider');
     if (settings.aiProvider) providerSelect.value = settings.aiProvider;
+
+    providerSelect.addEventListener('change', () => {
+        updateQuotaDisplay(providerSelect.value);
+    });
 
     document.getElementById('opt-title').checked = true;
 
@@ -248,6 +269,29 @@ const onInit = async () => {
             });
             const summary = await window.aiService.getSummary(results[0].result, provider, apiKey, model, language, maxLength);
             area.value = summary;
+
+            // Extract hashtags in parallel
+            if (document.getElementById('opt-hashtags').checked) {
+                isGeneratingKeywords = true;
+                updatePreview(data.title, data.url);
+                window.aiService.getKeywords(results[0].result, provider, apiKey, model, language)
+                    .then(kw => {
+                        lastKeywords = kw;
+                        isGeneratingKeywords = false;
+                        document.getElementById('opt-hashtags').disabled = false;
+                        updatePreview(data.title, data.url);
+                    })
+                    .catch(e => {
+                        lastKeywords = '';
+                        isGeneratingKeywords = false;
+                        console.error('Keywords error:', e);
+                        updatePreview(data.title, data.url);
+                    });
+            } else {
+                updatePreview(data.title, data.url);
+            }
+
+            updateQuotaDisplay(providerSelect.value);
 
             if (targetXMode) {
                 lastSummaryX = summary;
@@ -346,6 +390,7 @@ const onInit = async () => {
                 const language = settings.summaryLanguage || 'Japanese';
 
                 lastEyeCatchTitle = await window.aiService.getCatchyTitle(data.title, provider, apiKey, model, language);
+                updateQuotaDisplay(provider);
             } catch (e) {
                 console.error("AI Assist Title Error:", e);
                 // Fallback to original title

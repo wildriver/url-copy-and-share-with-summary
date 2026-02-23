@@ -13,36 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryMaxLengthInput = document.getElementById('summary-max-length');
     const saveBtn = document.getElementById('save-settings');
     const status = document.getElementById('status');
-    const groqSuggestions = document.getElementById('groq-suggestions');
-    const openRouterSuggestions = document.getElementById('openrouter-suggestions');
-
-    const recommendedModels = {
-        groq: [
-            'llama-3.3-70b-versatile',
-            'llama-3.1-8b-instant',
-            'mixtral-8x7b-32768',
-            'gemma2-9b-it'
-        ],
-        openrouter: [
-            'nvidia/nemotron-3-nano-30b-a3b:free',
-            'google/gemini-flash-1.5-free',
-            'meta-llama/llama-3.3-70b-instruct:free',
-            'openai/gpt-4o-mini'
-        ]
-    };
-
-    const populateSuggestions = (provider, datalist) => {
-        datalist.innerHTML = '';
-        recommendedModels[provider].forEach(model => {
-            const option = document.createElement('option');
-            option.value = model;
-            datalist.appendChild(option);
-        });
-    };
-
-    populateSuggestions('groq', groqSuggestions);
-    populateSuggestions('openrouter', openRouterSuggestions);
-
     const toggleAi = document.getElementById('toggle-ai');
     const toggleQr = document.getElementById('toggle-qr');
 

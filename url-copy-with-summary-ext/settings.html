@@ -89,13 +89,12 @@
                 </div>
                 <div class="field">
                     <label data-i18n="aiModel">Model Name</label>
-                    <input type="text" id="groq-model" list="groq-suggestions" placeholder="llama-3.1-8b-instant">
-                    <datalist id="groq-suggestions">
-                        <!-- Populated by JS -->
-                    </datalist>
-                    <div style="margin-top: 5px; font-size: 12px;">
-                        <a href="https://console.groq.com/docs/models" target="_blank"
-                            style="color: var(--primary);">View Groq Models</a>
+                    <select id="groq-model">
+                        <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Fast, 14,400 req/day)</option>
+                        <option value="openai/gpt-oss-20b">openai/gpt-oss-20b (High Perf, 1,000 req/day)</option>
+                    </select>
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--text-muted);">
+                        * Limits: 14,400 req/day (Instant) or 1,000 req/day (OSS).
                     </div>
                 </div>
             </div>
@@ -108,14 +107,11 @@
                 </div>
                 <div class="field">
                     <label data-i18n="aiModel">Model Name</label>
-                    <input type="text" id="openrouter-model" list="openrouter-suggestions"
-                        placeholder="openai/gpt-4o-mini">
-                    <datalist id="openrouter-suggestions">
-                        <!-- Populated by JS -->
-                    </datalist>
-                    <div style="margin-top: 5px; font-size: 12px;">
-                        <a href="https://openrouter.ai/models" target="_blank" style="color: var(--primary);">View
-                            OpenRouter Models</a>
+                    <select id="openrouter-model">
+                        <option value="google/gemma-3-27b-it:free">google/gemma-3-27b-it:free</option>
+                    </select>
+                    <div style="margin-top: 5px; font-size: 12px; color: var(--text-muted);">
+                        * Free tier limit: ~50 req/day. <br>Upgrade to a $10 credit to increase to 1,000+ req/day.
                     </div>
                 </div>
             </div>
