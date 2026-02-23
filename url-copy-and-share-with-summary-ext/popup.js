@@ -45,6 +45,8 @@ const getUrlData = async () => {
 }
 
 const formatTemplate = (type, title, url) => {
+    const summaryArea = document.getElementById("summary-text");
+    const summary = summaryArea ? summaryArea.value : "";
     switch (type) {
         case "scrapbox": return `[${title} ${url}]`;
         case "markdown": return `[${title}](${url})`;
@@ -52,8 +54,7 @@ const formatTemplate = (type, title, url) => {
         case "onlyUrl": return url;
         case "simpleBreak": return `${title}\n${url}`;
         case "summaryUrl": {
-            const summary = document.getElementById("summary-text").value;
-            return summary ? `${summary}\n${url}` : `${title}\n${url}`;
+            return summary && !summary.includes("...") && !summary.startsWith("Error") ? `${summary}\n${url}` : `${title}\n${url}`;
         }
         case "simple":
         default: return `${title} ${url}`;
@@ -62,17 +63,21 @@ const formatTemplate = (type, title, url) => {
 
 const generateShareText = (title, url, summary) => {
     let parts = [];
-    if (document.getElementById('opt-summary').checked && summary) {
+    const isSummaryChecked = document.getElementById('opt-summary').checked;
+    const isTitleChecked = document.getElementById('opt-title').checked;
+    const isHashtagsChecked = document.getElementById('opt-hashtags').checked;
+
+    if (isSummaryChecked && summary && !summary.includes("...") && !summary.startsWith("Error")) {
         parts.push(summary);
-        if (document.getElementById('opt-title').checked) {
+        if (isTitleChecked) {
             parts.push("-");
         }
     }
-    if (document.getElementById('opt-title').checked) {
+    if (isTitleChecked) {
         parts.push(title);
     }
     parts.push(url);
-    if (document.getElementById('opt-hashtags').checked) {
+    if (isHashtagsChecked) {
         parts.push("#URLCopyAndShare");
     }
 
@@ -87,54 +92,56 @@ const updateCopyPreview = (data, type = "simple") => {
 }
 
 const updatePreview = (title, url) => {
-    const summary = document.getElementById("summary-text").value;
+    const summaryArea = document.getElementById("summary-text");
+    const summary = summaryArea ? summaryArea.value : "";
     const text = generateShareText(title, url, summary);
     document.getElementById('share-preview').value = text;
 }
 
 const updateVisibilityUI = (settings, isShareable) => {
-    const summaryVal = document.getElementById("summary-text").value;
-    const hasSummary = summaryVal && summaryVal !== chrome.i18n.getMessage("summarizing") && !summaryVal.startsWith("Error:");
+    const summaryArea = document.getElementById("summary-text");
+    const summaryVal = summaryArea ? summaryArea.value : "";
+    const hasSummary = summaryVal && !summaryVal.includes("...") && !summaryVal.startsWith("Error");
     const hasApiKey = !!settings.apiKey;
     const showAi = settings.showAi !== false;
     const showQr = settings.showQr !== false;
 
-    // AI Section Visibility
+    // Independent Sections (Hide/Visible based on settings)
     const aiSection = document.getElementById('result-section');
-    aiSection.style.display = (showAi && hasApiKey && isShareable) ? 'block' : 'none';
+    aiSection.style.display = (showAi) ? 'block' : 'none';
 
-    // QR Section Visibility
     const qrSection = document.getElementById('tools-section');
     qrSection.style.display = (showQr) ? 'block' : 'none';
 
-    // AI Dependent Buttons / Options
+    // Share Checkboxes (Always visible, but disabled without prerequisites)
+    const optSummary = document.getElementById('opt-summary');
+    optSummary.closest('.checkbox-item').style.display = 'flex'; // Always show
+    optSummary.disabled = !hasApiKey || !isShareable || !hasSummary;
+
+    const optImage = document.getElementById('opt-image');
+    optImage.closest('.checkbox-item').style.display = 'flex'; // Always show
+    optImage.disabled = !hasApiKey || !isShareable;
+
+    const optHashtags = document.getElementById('opt-hashtags');
+    optHashtags.closest('.checkbox-item').style.display = 'flex'; // Always show
+    optHashtags.disabled = !hasApiKey || !isShareable;
+
+    // Copy Buttons (Always show, but disable without prerequisites)
     const summaryUrlBtn = document.getElementById('summaryUrl');
-    summaryUrlBtn.style.display = (showAi && hasApiKey && hasSummary) ? 'inline-block' : 'none';
+    summaryUrlBtn.style.display = 'inline-block'; // Always show
+    summaryUrlBtn.disabled = !hasApiKey || !isShareable || !hasSummary;
 
-    const optSummaryLabel = document.getElementById('opt-summary').closest('.checkbox-item');
-    optSummaryLabel.style.display = (showAi && hasApiKey && hasSummary) ? 'flex' : 'none';
-
-    const optImageLabel = document.getElementById('opt-image').closest('.checkbox-item');
-    optImageLabel.style.display = (showAi && hasApiKey) ? 'flex' : 'none';
-
-    const optHashtagsLabel = document.getElementById('opt-hashtags').closest('.checkbox-item');
-    optHashtagsLabel.style.display = (showAi && hasApiKey) ? 'flex' : 'none';
+    // AI Dependent inputs (Main summary/image actions)
+    const aiMenus = document.querySelectorAll('.ai-menu');
+    aiMenus.forEach(btn => btn.disabled = !hasApiKey || !isShareable);
 
     // Slack Button
     const slackBtn = document.getElementById('share-slack');
-    slackBtn.style.display = (settings.slackWebhook && isShareable) ? 'flex' : 'none';
+    slackBtn.disabled = !settings.slackWebhook || !isShareable;
 
     // Social buttons general shareability
     const shareBtns = document.querySelectorAll('.social-btn:not(.ai-dependent)');
     shareBtns.forEach(btn => btn.disabled = !isShareable);
-
-    // AI Dependent inputs
-    document.querySelectorAll('.ai-dependent').forEach(el => {
-        el.disabled = !hasApiKey || !isShareable;
-    });
-
-    const aiMenus = document.querySelectorAll('.ai-menu');
-    aiMenus.forEach(btn => btn.disabled = !hasApiKey || !isShareable);
 }
 
 const renderDynamicButtons = (enabledButtons, data) => {
