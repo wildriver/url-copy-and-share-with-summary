@@ -76,5 +76,8 @@
     },
     "useNewline": {
         "message": "改行を入れる"
+    },
+    "copyPreview": {
+        "message": "コピー内容のプレビュー"
     }
 }

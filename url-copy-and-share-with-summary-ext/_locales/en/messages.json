@@ -76,5 +76,8 @@
     },
     "useNewline": {
         "message": "Use Newline"
+    },
+    "copyPreview": {
+        "message": "Copy Preview"
     }
 }

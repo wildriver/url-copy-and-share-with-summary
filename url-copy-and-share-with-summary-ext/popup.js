@@ -81,6 +81,15 @@ const generateShareText = (title, url, summary) => {
     return parts.join(useNewline ? "\n" : " ");
 }
 
+const updateCopyPreview = (data, type = "simple") => {
+    const text = formatTemplate(type, data.title, data.url);
+    const previewArea = document.getElementById('copy-preview');
+    previewArea.value = text;
+    // Auto-expand preview or just keep fixed height? Fixed height is better for popup stability.
+    // previewArea.style.height = 'auto';
+    // previewArea.style.height = previewArea.scrollHeight + 'px';
+}
+
 const updatePreview = (title, url) => {
     const summary = document.getElementById("summary-text").value;
     const text = generateShareText(title, url, summary);
@@ -121,7 +130,12 @@ const renderDynamicButtons = (enabledButtons, data) => {
         btn.id = type;
         btn.className = 'primary-button secondary-button';
         btn.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-        btn.onclick = () => copyText(formatTemplate(type, data.title, data.url));
+        btn.onclick = () => {
+            currentCopyFormat = type;
+            const text = formatTemplate(type, data.title, data.url);
+            copyText(text);
+            updateCopyPreview(data, type);
+        };
         container.appendChild(btn);
     });
 }
@@ -153,19 +167,37 @@ const onInit = async () => {
 
     // Initial Preview
     updatePreview(data.title, data.url);
+    updateCopyPreview(data, "simple");
 
     // Initial copy
     copyText(formatTemplate("simple", data.title, data.url));
 
     // Event Listeners
-    document.getElementById("simple").onclick = () => copyText(formatTemplate("simple", data.title, data.url));
-    document.getElementById("simpleBreak").onclick = () => copyText(formatTemplate("simpleBreak", data.title, data.url));
-    document.getElementById("summaryUrl").onclick = () => copyText(formatTemplate("summaryUrl", data.title, data.url));
+    document.getElementById("simple").onclick = () => {
+        currentCopyFormat = "simple";
+        const text = formatTemplate("simple", data.title, data.url);
+        copyText(text);
+        updateCopyPreview(data, "simple");
+    };
+    document.getElementById("simpleBreak").onclick = () => {
+        currentCopyFormat = "simpleBreak";
+        const text = formatTemplate("simpleBreak", data.title, data.url);
+        copyText(text);
+        updateCopyPreview(data, "simpleBreak");
+    };
+    document.getElementById("summaryUrl").onclick = () => {
+        currentCopyFormat = "summaryUrl";
+        const text = formatTemplate("summaryUrl", data.title, data.url);
+        copyText(text);
+        updateCopyPreview(data, "summaryUrl");
+    };
 
     // Checkboxes change preview
     document.querySelectorAll('.checkbox-item input').forEach(input => {
         input.onchange = () => updatePreview(data.title, data.url);
     });
+
+    let currentCopyFormat = "simple";
 
     // AI Summary
     document.getElementById("summarize").onclick = async () => {
@@ -186,6 +218,7 @@ const onInit = async () => {
             area.value = summary;
             updateAiDependentUI(!!settings.apiKey, !!settings.slackWebhook, data.isShareable);
             updatePreview(data.title, data.url);
+            updateCopyPreview(data, currentCopyFormat);
         } catch (e) {
             area.value = "Error: " + e.message;
         } finally {
