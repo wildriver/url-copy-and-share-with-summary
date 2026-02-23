@@ -4,72 +4,88 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="styles/popup.css">
-    <link rel="stylesheet" href="styles/ress.css">
-    <link rel="stylesheet" href="styles/photon.css">
     <script defer src="qrcode.js"></script>
     <script defer src="ai_service.js"></script>
     <script defer src="image_service.js"></script>
+    <script defer src="slack_service.js"></script>
     <script defer src="popup.js"></script>
 </head>
 
 <body>
     <header>
-        <h1>Simple URL Copy</h1>
-        <a href="settings.html" target="_blank"
-            style="font-size: 12px; float: right; margin-top: -25px; color: #fff;">Settings</a>
+        <h1 data-i18n="appName">URL Copy and Share</h1>
+        <a href="settings.html" target="_blank" data-i18n="settings">Settings</a>
     </header>
     <main>
         <div id="info">
-            <div id="shortcutInfo">Ctrl+Shift+F to open this menu.</div>
-            <div id="copied">
-                Copied!
-            </div>
+            <div id="shortcutInfo">Ctrl+Shift+F</div>
+            <div id="copied" data-i18n="copied">Copied!</div>
         </div>
-        <div id="menu">
-            <button id="simple" class="primary-button bettercopy-menu">
-                Simple (Title URL)
-            </button>
-            <button id="simpleBreak" class="primary-button bettercopy-menu">
-                Simple /w Breakline
-            </button>
-            <button id="onlyUrl" class="primary-button bettercopy-menu">
-                URL Only
-            </button>
-            <button id="markdown" class="primary-button bettercopy-menu">
-                Markdown Style
-            </button>
-            <button id="backlog" class="primary-button bettercopy-menu">
-                Backlog Style
-            </button>
-            <button id="scrapbox" class="primary-button bettercopy-menu">
-                Scrapbox Style
-            </button>
-            <hr>
-            <button id="summarize" class="primary-button ai-menu">
-                Generate AI Summary
-            </button>
-            <button id="generate-image" class="primary-button ai-menu">
-                Generate Eye-catch
-            </button>
-            <div id="social-share" style="margin-top: 10px; display: flex; gap: 5px;">
-                <button id="share-x" class="primary-button social-btn" style="flex: 1;">X</button>
-                <button id="share-fb" class="primary-button social-btn" style="flex: 1;">FB</button>
-                <button id="share-slack" class="primary-button social-btn" style="flex: 1;">Slack</button>
+
+        <section id="copy-section">
+            <div class="section-title" data-i18n="copyMenu">Copy</div>
+            <div id="copy-buttons" class="grid">
+                <button id="simple" class="primary-button">Simple (Title URL)</button>
+                <button id="simpleBreak" class="primary-button">Simple /w Breakline</button>
+                <button id="summaryUrl" class="primary-button ai-dependent" disabled>Summary /w URL</button>
             </div>
-            <div id="ai-result"
-                style="margin-top: 10px; font-size: 12px; border: 1px solid #ccc; padding: 5px; display: none;">
-                <p><strong>AI Summary:</strong></p>
-                <div id="summary-text"></div>
+        </section>
+
+        <section id="share-section">
+            <div class="section-title" data-i18n="shareMenu">Share</div>
+            <div class="share-options">
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" id="opt-title" checked> <span
+                            data-i18n="title">Title</span></label>
+                    <label class="checkbox-item"><input type="checkbox" id="opt-summary" class="ai-dependent" disabled>
+                        <span data-i18n="summary">Summary</span></label>
+                    <label class="checkbox-item"><input type="checkbox" id="opt-image" class="ai-dependent" disabled>
+                        <span data-i18n="eyecatch">Eye-catch</span></label>
+                    <label class="checkbox-item"><input type="checkbox" id="opt-hashtags" class="ai-dependent" disabled>
+                        <span data-i18n="hashtags">Hashtags</span></label>
+                </div>
             </div>
-            <div id="eyecatch-preview" style="margin-top: 10px; display: none;">
-                <canvas id="eyecatch-canvas" width="300" height="157"
-                    style="border: 1px solid #ccc; width: 100%;"></canvas>
+            <div id="social-buttons" class="social-grid">
+                <button id="share-x" class="primary-button social-btn">
+                    <span>X</span>
+                </button>
+                <button id="share-fb" class="primary-button social-btn">
+                    <span>FB</span>
+                </button>
+                <button id="share-slack" class="primary-button social-btn ai-dependent" disabled>
+                    <span>Slack</span>
+                </button>
             </div>
-        </div>
-        <div id="bettercopy-copy">
+        </section>
+
+        <section id="result-section">
+            <div class="section-title" data-i18n="summary">Summary</div>
+            <button id="summarize" class="primary-button ai-menu" style="width: 100%; margin-bottom: 10px;"
+                data-i18n="generateSummary">Generate AI Summary</button>
+            <div id="ai-result" style="display: none;">
+                <textarea id="summary-text" readonly></textarea>
+            </div>
+
+            <div class="section-title" data-i18n="eyecatch">Eye-catch</div>
+            <button id="generate-image" class="primary-button ai-menu" style="width: 100%;"
+                data-i18n="generateEyecatch">Generate Eye-catch</button>
+            <div id="eyecatch-preview" style="display: none; margin-top: 10px;">
+                <canvas id="eyecatch-canvas"></canvas>
+            </div>
+        </section>
+
+        <section id="tools-section">
+            <div class="section-title">QR Code</div>
+            <div style="text-align: center;">
+                <div id="qrcode-container">
+                    <div id="qrcode"></div>
+                </div>
+            </div>
+        </section>
+
+        <div style="display: none;">
             <textarea id="copy-textarea"></textarea>
         </div>
-        <div id="qrcode"></div>
     </main>
 </body>
 

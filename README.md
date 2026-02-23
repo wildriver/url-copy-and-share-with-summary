@@ -11,11 +11,11 @@ An enhanced Chrome extension that helps you copy URLs in various formats, genera
 - **QR Code**: Instant QR code generation for the current page.
 
 ## Installation
-1. Download the `extension.zip` from the latest release.
-2. Unzip the file.
-3. Open Chrome and go to `chrome://extensions/`.
-4. Enable "Developer mode".
-5. Click "Load unpacked" and select the `url-copy-and-share-with-summary-ext` folder.
+1. Download the `extension.zip` from this repository.
+2. **Unzip** the `extension.zip` file into a folder.
+3. Open Chrome and navigate to `chrome://extensions/`.
+4. Enable **"Developer mode"** in the top right corner.
+5. Click **"Load unpacked"** and select the **folder** you just unzipped (the one containing `manifest.json`).
 
 ## Setup
 1. Open the extension popup.

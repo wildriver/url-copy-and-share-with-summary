@@ -1,135 +1,199 @@
 const AMAZON_HOST = "www.amazon.co.jp";
 
 const copyText = text => {
-    let copyTextArea = document.querySelector("#copy-textarea");
-    copyTextArea.textContent = text;
+    const copyTextArea = document.querySelector("#copy-textarea");
+    copyTextArea.value = text;
+    copyTextArea.style.display = "block";
     copyTextArea.select();
     document.execCommand('copy');
+    copyTextArea.style.display = "none";
 }
 
 const extractAmazonUrl = rawUrl => {
     const url = new URL(rawUrl);
     if (url.host == AMAZON_HOST && url.pathname.match(/\/dp\/[A-Za-z0-9]/)) {
-        newUrl = url.origin + url.pathname.replace(/(^\S+)(\/dp\/[A-Za-z0-9]{10})(.*)/, '$2');
-        return newUrl;
-    } else {
-        return rawUrl;
+        return url.origin + url.pathname.replace(/(^\S+)(\/dp\/[A-Za-z0-9]{10})(.*)/, '$2');
     }
+    return rawUrl;
 }
 
 const showCopied = _ => {
-    let copied = document.querySelector("#copied");
+    const copied = document.querySelector("#copied");
     copied.classList.remove("fadeout");
     setTimeout(_ => copied.classList.add("fadeout"), 300);
 }
 
-const copyUrl = menuType => {
-    chrome.tabs.query({ active: true, currentWindow: true, lastFocusedWindow: true }, function (tabs) {
-        let url = tabs[0].url;
-        const title = tabs[0].title;
-
-        // Process AmazonURL
-        url = extractAmazonUrl(url);
-
-        let text;
-        switch (menuType) {
-            case "scrapbox":
-                text = `[${title} ${url}]`
-                break;
-            case "markdown":
-                text = `[${title}](${url})`
-                break;
-            case "backlog":
-                text = `[[${title}:${url}]]`
-                break;
-            case "onlyUrl":
-                text = `${url}`
-                break;
-            case "simpleBreak":
-                text = `${title}\n${url}`
-                break;
-            case "simple":
-                text = `${title} ${url}`
-                break;
-        }
-        copyText(text);
-        showCopied();
-    })
+const getUrlData = async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return {
+        url: extractAmazonUrl(tab.url),
+        title: tab.title,
+        rawUrl: tab.url,
+        tabId: tab.id
+    };
 }
 
-const onInit = _ => {
-    // First copy simple
-    copyUrl("simple");
-    document.querySelectorAll(".bettercopy-menu").forEach(el => {
-        el.addEventListener("click", onClickCopyMenu);
+const formatTemplate = (type, title, url) => {
+    switch (type) {
+        case "scrapbox": return `[${title} ${url}]`;
+        case "markdown": return `[${title}](${url})`;
+        case "backlog": return `[[${title}:${url}]]`;
+        case "onlyUrl": return url;
+        case "simpleBreak": return `${title}\n${url}`;
+        case "summaryUrl": {
+            const summary = document.getElementById("summary-text").value;
+            return summary ? `${summary}\n${url}` : `${title}\n${url}`;
+        }
+        case "simple":
+        default: return `${title} ${url}`;
+    }
+}
+
+const generateShareText = (title, url, summary) => {
+    let parts = [];
+    if (document.getElementById('opt-summary').checked && summary) {
+        parts.push(summary);
+        if (document.getElementById('opt-title').checked) {
+            parts.push("-");
+        }
+    }
+    if (document.getElementById('opt-title').checked) {
+        parts.push(title);
+    }
+    parts.push(url);
+    if (document.getElementById('opt-hashtags').checked) {
+        // Simple hashtag logic: maybe extract from title or just generic
+        parts.push("#URLCopyAndShare");
+    }
+    return parts.join("\n");
+}
+
+const updateAiDependentUI = (hasApiKey, hasWebhook) => {
+    const aiElements = document.querySelectorAll('.ai-dependent');
+    aiElements.forEach(el => {
+        el.disabled = !hasApiKey;
+        if (el.id === 'share-slack' && !hasWebhook) el.disabled = true;
+    });
+}
+
+const renderDynamicButtons = (enabledButtons) => {
+    const container = document.getElementById('copy-buttons');
+    const types = ['markdown', 'backlog', 'scrapbox', 'onlyUrl'];
+
+    types.forEach(type => {
+        if (enabledButtons && enabledButtons[type] === false) return;
+
+        const btn = document.createElement('button');
+        btn.id = type;
+        btn.className = 'primary-button secondary-button';
+        btn.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+        btn.addEventListener('click', async () => {
+            const data = await getUrlData();
+            copyText(formatTemplate(type, data.title, data.url));
+            showCopied();
+        });
+        container.appendChild(btn);
+    });
+}
+
+const onInit = async () => {
+    // i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
     });
 
-    document.getElementById("summarize").addEventListener("click", async () => {
-        const summaryText = document.getElementById("summary-text");
-        const aiResult = document.getElementById("ai-result");
-        aiResult.style.display = "block";
-        summaryText.innerText = "Summarizing...";
+    const settings = await chrome.storage.sync.get(['apiKey', 'slackWebhook', 'enabledButtons']);
+    updateAiDependentUI(!!settings.apiKey, !!settings.slackWebhook);
+    renderDynamicButtons(settings.enabledButtons);
+
+    // Initial copy
+    const initialData = await getUrlData();
+    copyText(formatTemplate("simple", initialData.title, initialData.url));
+
+    // Standard buttons
+    document.getElementById("simple").onclick = async () => {
+        const data = await getUrlData();
+        copyText(formatTemplate("simple", data.title, data.url));
+        showCopied();
+    };
+    document.getElementById("simpleBreak").onclick = async () => {
+        const data = await getUrlData();
+        copyText(formatTemplate("simpleBreak", data.title, data.url));
+        showCopied();
+    };
+    document.getElementById("summaryUrl").onclick = async () => {
+        const data = await getUrlData();
+        copyText(formatTemplate("summaryUrl", data.title, data.url));
+        showCopied();
+    };
+
+    // AI Summary
+    document.getElementById("summarize").onclick = async () => {
+        const btn = document.getElementById("summarize");
+        const area = document.getElementById("summary-text");
+        const resDiv = document.getElementById("ai-result");
+
+        btn.disabled = true;
+        resDiv.style.display = "block";
+        area.value = chrome.i18n.getMessage("summarizing");
 
         try {
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const data = await getUrlData();
             const results = await chrome.scripting.executeScript({
-                target: { tabId: tab.id },
+                target: { tabId: data.tabId },
                 func: () => document.body.innerText,
             });
-            const text = results[0].result;
-            const summary = await window.aiService.getSummary(text);
-            summaryText.innerText = summary;
+            const summary = await window.aiService.getSummary(results[0].result);
+            area.value = summary;
+            updateAiDependentUI(true, !!settings.slackWebhook); // Re-enable if summary now exists
         } catch (e) {
-            summaryText.innerText = "Error: " + e.message;
+            area.value = "Error: " + e.message;
+        } finally {
+            btn.disabled = false;
         }
-    });
+    };
 
-    document.getElementById("generate-image").addEventListener("click", async () => {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    // Eye-catch
+    document.getElementById("generate-image").onclick = async () => {
+        const data = await getUrlData();
         const canvas = document.getElementById("eyecatch-canvas");
-        const preview = document.getElementById("eyecatch-preview");
-        preview.style.display = "block";
-        window.imageService.generateEyeCatch(canvas, tab.title, tab.url);
+        document.getElementById("eyecatch-preview").style.display = "block";
+        window.imageService.generateEyeCatch(canvas, data.title, data.url);
+    };
+
+    // Sharing
+    document.getElementById("share-x").onclick = async () => {
+        const data = await getUrlData();
+        const summary = document.getElementById("summary-text").value;
+        const text = generateShareText(data.title, data.url, summary);
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    document.getElementById("share-fb").onclick = async () => {
+        const data = await getUrlData();
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(data.url)}`, '_blank');
+    };
+
+    document.getElementById("share-slack").onclick = async () => {
+        const data = await getUrlData();
+        const summary = document.getElementById("summary-text").value;
+        const text = generateShareText(data.title, data.url, summary);
+        try {
+            await window.slackService.postToSlack(text, settings.slackWebhook);
+            alert(chrome.i18n.getMessage("slackPostSuccess"));
+        } catch (e) {
+            alert("Slack Error: " + e.message);
+        }
+    };
+
+    // QR Code
+    const qrData = await getUrlData();
+    new QRCode(document.getElementById("qrcode"), {
+        text: qrData.rawUrl,
+        width: 128,
+        height: 128,
+        correctLevel: QRCode.CorrectLevel.L
     });
-
-    document.getElementById("share-x").addEventListener("click", async () => {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const summary = document.getElementById("summary-text").innerText;
-        const text = summary && summary !== "Summarizing..." ? summary + "\n" : "";
-        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text + tab.title)}&url=${encodeURIComponent(tab.url)}`;
-        window.open(url, '_blank');
-    });
-
-    document.getElementById("share-fb").addEventListener("click", async () => {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(tab.url)}`;
-        window.open(url, '_blank');
-    });
-
-    document.getElementById("share-slack").addEventListener("click", async () => {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const summary = document.getElementById("summary-text").innerText;
-        const text = summary && summary !== "Summarizing..." ? `${summary}\n${tab.url}` : `${tab.title}\n${tab.url}`;
-        // Slack web hook or direct link is limited, usually simple copy is better or deep link
-        copyText(text);
-        alert("Slack share text copied to clipboard!");
-    });
-
-    chrome.tabs.query({ active: true, currentWindow: true, lastFocusedWindow: true }, (tabs) => {
-        if (!tabs[0]) return;
-        new QRCode(document.getElementById("qrcode"), {
-            text: tabs[0].url,
-            width: 128,
-            height: 128,
-            correctLevel: QRCode.CorrectLevel.L
-        });
-    });
-}
-
-
-const onClickCopyMenu = function (evt) {
-    const menuType = this.id;
-    copyUrl(menuType);
 }
 
 document.addEventListener("DOMContentLoaded", onInit);

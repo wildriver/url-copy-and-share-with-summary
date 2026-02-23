@@ -1,0 +1,65 @@
+{
+    "appName": {
+        "message": "URL Copy and Share with Summary"
+    },
+    "appDesc": {
+        "message": "AI要約付きでURLをコピーし、SNSに手軽に共有できる拡張機能です。"
+    },
+    "settings": {
+        "message": "設定"
+    },
+    "copyMenu": {
+        "message": "コピー"
+    },
+    "shareMenu": {
+        "message": "共有"
+    },
+    "generateSummary": {
+        "message": "AI要約を生成"
+    },
+    "generateEyecatch": {
+        "message": "アイキャッチを生成"
+    },
+    "summarizing": {
+        "message": "要約中..."
+    },
+    "summary": {
+        "message": "要約"
+    },
+    "eyecatch": {
+        "message": "アイキャッチ"
+    },
+    "copied": {
+        "message": "コピー完了！"
+    },
+    "save": {
+        "message": "設定を保存"
+    },
+    "saved": {
+        "message": "設定を保存しました！"
+    },
+    "aiProvider": {
+        "message": "AIプロバイダー"
+    },
+    "apiKey": {
+        "message": "APIキー"
+    },
+    "aiModel": {
+        "message": "モデル名"
+    },
+    "slackWebhook": {
+        "message": "Slack Webhook URL"
+    },
+    "enabledButtons": {
+        "message": "有効にするコピーボタン"
+    },
+    "shareOptions": {
+        "message": "共有オプション"
+    },
+    "hashtags": {
+        "message": "ハッシュタグ"
+    },
+    "slackPostSuccess": {
+        "message": "Slackに投稿しました！"
+    }
+}

@@ -1,9 +1,10 @@
 {
-    "name": "URL Copy and Share with Summary",
-    "description": "A small extension that helps you to copy URL.",
+    "name": "__MSG_appName__",
+    "description": "__MSG_appDesc__",
     "author": "@ikedaosushi and Misoni",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "manifest_version": 3,
+    "default_locale": "en",
     "icons": {
         "16": "icons/icon.svg",
         "24": "icons/icon.svg",

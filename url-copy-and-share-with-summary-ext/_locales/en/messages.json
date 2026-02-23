@@ -1,0 +1,65 @@
+{
+    "appName": {
+        "message": "URL Copy and Share with Summary"
+    },
+    "appDesc": {
+        "message": "Copy URLs with AI summary and share to social media."
+    },
+    "settings": {
+        "message": "Settings"
+    },
+    "copyMenu": {
+        "message": "Copy"
+    },
+    "shareMenu": {
+        "message": "Share"
+    },
+    "generateSummary": {
+        "message": "Generate AI Summary"
+    },
+    "generateEyecatch": {
+        "message": "Generate Eye-catch"
+    },
+    "summarizing": {
+        "message": "Summarizing..."
+    },
+    "summary": {
+        "message": "Summary"
+    },
+    "eyecatch": {
+        "message": "Eye-catch"
+    },
+    "copied": {
+        "message": "Copied!"
+    },
+    "save": {
+        "message": "Save Settings"
+    },
+    "saved": {
+        "message": "Settings saved!"
+    },
+    "aiProvider": {
+        "message": "AI Provider"
+    },
+    "apiKey": {
+        "message": "API Key"
+    },
+    "aiModel": {
+        "message": "Model Name"
+    },
+    "slackWebhook": {
+        "message": "Slack Webhook URL"
+    },
+    "enabledButtons": {
+        "message": "Enabled Copy Buttons"
+    },
+    "shareOptions": {
+        "message": "Share Options"
+    },
+    "hashtags": {
+        "message": "Hashtags"
+    },
+    "slackPostSuccess": {
+        "message": "Posted to Slack!"
+    }
+}
