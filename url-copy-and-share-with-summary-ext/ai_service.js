@@ -1,12 +1,16 @@
-const getSummary = async (text, provider, apiKey, model) => {
+const getSummary = async (text, provider, apiKey, model, language = 'Japanese', maxLength = 200) => {
     // If parameters aren't provided, fetch from storage as fallback
     if (!provider || !apiKey || !model) {
         const settings = await chrome.storage.sync.get([
             'aiProvider',
             'groqApiKey', 'groqModel',
-            'openrouterApiKey', 'openrouterModel'
+            'openrouterApiKey', 'openrouterModel',
+            'summaryLanguage', 'summaryMaxLength'
         ]);
         provider = provider || settings.aiProvider || 'groq';
+        language = language || settings.summaryLanguage || 'Japanese';
+        maxLength = maxLength || settings.summaryMaxLength || 200;
+
         if (provider === 'groq') {
             apiKey = apiKey || settings.groqApiKey;
             model = model || settings.groqModel || 'llama-3.1-8b-instant';
@@ -24,7 +28,7 @@ const getSummary = async (text, provider, apiKey, model) => {
         ? 'https://api.groq.com/openai/v1/chat/completions'
         : 'https://openrouter.ai/api/v1/chat/completions';
 
-    const prompt = `Summarize the following text in a few sentences. Keep it concise for a social media post.\n\nText: ${text.substring(0, 5000)}`;
+    const prompt = `Summarize the following text in ${language}. THE SUMMARY MUST BE UNDER ${maxLength} CHARACTERS. Keep it concise and catchy for a social media post. DO NOT include any introductory text, just the summary itself.\n\nText: ${text.substring(0, 5000)}`;
 
     const response = await fetch(providerUrl, {
         method: 'POST',

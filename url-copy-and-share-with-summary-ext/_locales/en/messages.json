@@ -91,5 +91,17 @@
     },
     "openRouterApiKey": {
         "message": "OpenRouter API Key"
+    },
+    "aiSettings": {
+        "message": "AI Summary Style"
+    },
+    "summaryLanguage": {
+        "message": "Summary Language"
+    },
+    "summaryMaxLength": {
+        "message": "Max Character Count"
+    },
+    "optimizeForX": {
+        "message": "Optimize for X"
     }
 }

@@ -128,6 +128,18 @@
         </section>
 
         <section class="card">
+            <label data-i18n="aiSettings">AI Summary Style</label>
+            <div class="field">
+                <label data-i18n="summaryLanguage">Summary Language</label>
+                <input type="text" id="summary-language" placeholder="Japanese">
+            </div>
+            <div class="field">
+                <label data-i18n="summaryMaxLength">Max Character Count (Default)</label>
+                <input type="number" id="summary-max-length" placeholder="200" min="10" max="1000">
+            </div>
+        </section>
+
+        <section class="card">
             <label data-i18n="slackWebhook">Slack Webhook URL</label>
             <div class="field">
                 <input type="text" id="slack-webhook" placeholder="https://hooks.slack.com/services/...">

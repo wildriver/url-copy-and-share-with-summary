@@ -91,5 +91,17 @@
     },
     "openRouterApiKey": {
         "message": "OpenRouter APIキー"
+    },
+    "aiSettings": {
+        "message": "AI要約のスタイル"
+    },
+    "summaryLanguage": {
+        "message": "要約の言語"
+    },
+    "summaryMaxLength": {
+        "message": "最大文字数"
+    },
+    "optimizeForX": {
+        "message": "X用に最適化"
     }
 }

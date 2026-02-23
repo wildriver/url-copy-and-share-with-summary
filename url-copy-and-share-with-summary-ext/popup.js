@@ -190,6 +190,7 @@ const onInit = async () => {
         'aiProvider',
         'groqApiKey', 'groqModel',
         'openrouterApiKey', 'openrouterModel',
+        'summaryLanguage', 'summaryMaxLength',
         'slackWebhook', 'enabledButtons', 'showAi', 'showQr'
     ]);
 
@@ -246,10 +247,30 @@ const onInit = async () => {
         const btn = document.getElementById("summarize");
         const area = document.getElementById("summary-text");
         const resDiv = document.getElementById("ai-result");
+        const xMode = document.getElementById("opt-x-mode").checked;
 
         const provider = providerSelect.value;
         const apiKey = provider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
         const model = provider === 'groq' ? (settings.groqModel || 'llama-3.1-8b-instant') : (settings.openrouterModel || 'openai/gpt-4o-mini');
+        const language = settings.summaryLanguage || 'Japanese';
+
+        let maxLength = settings.summaryMaxLength || 200;
+
+        if (xMode) {
+            // X limit is 140. 
+            // Fixed parts: URL (23), hashtags (#URLCopyAndShare = 16), title, separators
+            const urlLen = 23;
+            const hashtagLen = document.getElementById('opt-hashtags').checked ? 16 : 0;
+            const titleLen = document.getElementById('opt-title').checked ? data.title.length : 0;
+            const newline = document.getElementById('opt-newline').checked;
+
+            // parts: summary, [separator], title, [separator], url, [separator], hashtags
+            // Worst case separators: 3 separators.
+            const separatorLen = newline ? 3 : 3;
+            const fixedPartsLen = urlLen + hashtagLen + titleLen + separatorLen;
+
+            maxLength = Math.max(10, 140 - fixedPartsLen - 5); // 5 for buffer
+        }
 
         btn.disabled = true;
         resDiv.style.display = "block";
@@ -260,7 +281,7 @@ const onInit = async () => {
                 target: { tabId: data.tabId },
                 func: () => document.body.innerText,
             });
-            const summary = await window.aiService.getSummary(results[0].result, provider, apiKey, model);
+            const summary = await window.aiService.getSummary(results[0].result, provider, apiKey, model, language, maxLength);
             area.value = summary;
             updateVisibilityUI(settings, data.isShareable);
             updatePreview(data.title, data.url);

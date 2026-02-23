@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const groqModelInput = document.getElementById('groq-model');
     const openRouterApiKeyInput = document.getElementById('openrouter-api-key');
     const openRouterModelInput = document.getElementById('openrouter-model');
+    const summaryLanguageInput = document.getElementById('summary-language');
+    const summaryMaxLengthInput = document.getElementById('summary-max-length');
     const slackWebhookInput = document.getElementById('slack-webhook');
     const saveBtn = document.getElementById('save-settings');
     const status = document.getElementById('status');
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'gemma2-9b-it'
         ],
         openrouter: [
-            'nvidia/nemotron-3-nano-34b-a2.5b:free',
+            'nvidia/nemotron-3-nano-30b-a3b:free',
             'google/gemini-flash-1.5-free',
             'meta-llama/llama-3.3-70b-instruct:free',
             'openai/gpt-4o-mini'
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'aiProvider',
         'groqApiKey', 'groqModel',
         'openrouterApiKey', 'openrouterModel',
+        'summaryLanguage', 'summaryMaxLength',
         'slackWebhook', 'enabledButtons', 'showAi', 'showQr'
     ], (items) => {
         if (items.aiProvider) providerSelect.value = items.aiProvider;
@@ -65,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (items.groqModel) groqModelInput.value = items.groqModel;
         if (items.openrouterApiKey) openRouterApiKeyInput.value = items.openrouterApiKey;
         if (items.openrouterModel) openRouterModelInput.value = items.openrouterModel;
+        if (items.summaryLanguage) summaryLanguageInput.value = items.summaryLanguage;
+        if (items.summaryMaxLength) summaryMaxLengthInput.value = items.summaryMaxLength;
         if (items.slackWebhook) slackWebhookInput.value = items.slackWebhook;
 
         toggleAi.checked = items.showAi !== false;
@@ -84,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const groqModel = groqModelInput.value;
         const openrouterApiKey = openRouterApiKeyInput.value;
         const openrouterModel = openRouterModelInput.value;
+        const summaryLanguage = summaryLanguageInput.value;
+        const summaryMaxLength = summaryMaxLengthInput.value;
         const slackWebhook = slackWebhookInput.value;
         const showAi = toggleAi.checked;
         const showQr = toggleQr.checked;
@@ -99,6 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
             groqModel,
             openrouterApiKey,
             openrouterModel,
+            summaryLanguage,
+            summaryMaxLength,
             slackWebhook,
             enabledButtons,
             showAi,
