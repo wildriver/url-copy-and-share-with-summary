@@ -26,6 +26,10 @@ An enhanced Chrome extension that helps you copy URLs in various formats, genera
 - **Canvas API**: Local image generation for performance and privacy.
 - **AI Integration**: Connects to your choice of LLM provider.
 
+## Acknowledgements
+This project is a fork of the original [Simple URL Copy](https://github.com/MISONLN41/simple-url-copy) by [@ikedaosushi](https://github.com/ikedaosushi) and [Misoni](https://github.com/MISONLN41).
+
+Special thanks to the original authors for providing the foundation for this extension.
+
 ---
-Original extension by @ikedaosushi and Misoni.
 Enhanced by URL Copy and Share with Summary.
