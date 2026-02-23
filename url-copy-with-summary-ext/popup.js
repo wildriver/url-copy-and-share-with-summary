@@ -23,6 +23,28 @@ const copyText = async text => {
     }
 }
 
+function cleanUrl(url) {
+    try {
+        const urlObj = new URL(url);
+
+        // Remove common tracking parameters
+        const trackingParams = ['fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', '_x_tr_sl', '_x_tr_tl', '_x_tr_hl', '_x_tr_pto'];
+        trackingParams.forEach(param => urlObj.searchParams.delete(param));
+
+        // Amazon specific cleanup logic
+        if (urlObj.hostname.includes('amazon.')) {
+            const match = urlObj.pathname.match(/\/dp\/([A-Z0-9]{10})/);
+            if (match) {
+                return `${urlObj.origin}/dp/${match[1]}`;
+            }
+        }
+
+        return urlObj.toString();
+    } catch (e) {
+        return url; // Return original if URL parsing fails
+    }
+}
+
 const extractAmazonUrl = rawUrl => {
     try {
         const url = new URL(rawUrl);
