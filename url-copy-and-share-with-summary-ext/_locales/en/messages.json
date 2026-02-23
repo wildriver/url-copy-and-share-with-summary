@@ -78,16 +78,7 @@
         "message": "Use Newline"
     },
     "copyPreview": {
-        "message": "Copy Preview"
-    },
-    "downloadImage": {
-        "message": "Download Image"
-    },
-    "aiProviderLabel": {
-        "message": "AI Provider"
-    },
-    "groqApiKey": {
-        "message": "Groq API Key"
+        "message": "Preview & Copy"
     },
     "openRouterApiKey": {
         "message": "OpenRouter API Key"
@@ -102,6 +93,21 @@
         "message": "Max Character Count"
     },
     "optimizeForX": {
-        "message": "Optimize for X"
+        "message": "X Mode"
+    },
+    "copyToClipboard": {
+        "message": "Copy to Clipboard"
+    },
+    "template": {
+        "message": "Template"
+    },
+    "templateModern": {
+        "message": "Modern Gradient"
+    },
+    "templateWhite": {
+        "message": "Classic White"
+    },
+    "templateNavy": {
+        "message": "Navy Professional"
     }
 }

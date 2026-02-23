@@ -1,4 +1,4 @@
-const generateEyeCatch = (canvas, title, url) => {
+const generateEyeCatch = (canvas, title, url, template = 'modern') => {
     const ctx = canvas.getContext('2d');
     const width = 1200;
     const height = 630;
@@ -7,45 +7,79 @@ const generateEyeCatch = (canvas, title, url) => {
     canvas.width = width;
     canvas.height = height;
 
-    // Background Gradient
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#6a11cb');
-    gradient.addColorStop(1, '#2575fc');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    if (template === 'white') {
+        // Template: Classic White (White bg, Thick Navy border)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
 
-    // Overlay Box
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.fillRect(50, 50, width - 100, height - 100);
+        ctx.strokeStyle = '#001f3f'; // Navy
+        ctx.lineWidth = 40;
+        ctx.strokeRect(20, 20, width - 40, height - 40);
+
+        ctx.fillStyle = '#001f3f'; // Navy text
+    } else if (template === 'navy') {
+        // Template: Navy Professional (Navy bg, white text)
+        ctx.fillStyle = '#001f3f';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(50, 50, width - 100, height - 100);
+
+        ctx.fillStyle = '#ffffff'; // White text
+    } else {
+        // Template: Modern Gradient (Default)
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#6a11cb');
+        gradient.addColorStop(1, '#2575fc');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Overlay Box
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(50, 50, width - 100, height - 100);
+
+        ctx.fillStyle = '#ffffff'; // White text
+    }
 
     // Title
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 60px sans-serif';
+    ctx.font = 'bold 70px sans-serif';
     ctx.textAlign = 'center';
 
-    // Simple text wrapping for title
-    const words = title.split(' ');
+    // Text wrapping for title
+    const words = title.split(''); // Split by character for Japanese support
     let line = '';
-    let y = 280;
-    const maxWidth = width - 200;
-    const lineHeight = 70;
+    let lines = [];
+    const maxWidth = width - 240;
+    const lineHeight = 90;
 
     for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' ';
+        const testLine = line + words[i];
         const metrics = ctx.measureText(testLine);
         if (metrics.width > maxWidth && i > 0) {
-            ctx.fillText(line, width / 2, y);
-            line = words[i] + ' ';
-            y += lineHeight;
+            lines.push(line);
+            line = words[i];
         } else {
             line = testLine;
         }
     }
-    ctx.fillText(line, width / 2, y);
+    lines.push(line);
+
+    // Center vertical alignment
+    let y = (height / 2) - ((lines.length - 1) * lineHeight / 2);
+
+    lines.forEach(l => {
+        ctx.fillText(l, width / 2, y);
+        y += lineHeight;
+    });
 
     // URL
-    ctx.font = '30px sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.font = '35px sans-serif';
+    if (template === 'white') {
+        ctx.fillStyle = 'rgba(0, 31, 63, 0.6)';
+    } else {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    }
     ctx.fillText(url, width / 2, height - 100);
 
     return canvas.toDataURL('image/png');

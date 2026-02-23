@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const openRouterModelInput = document.getElementById('openrouter-model');
     const summaryLanguageInput = document.getElementById('summary-language');
     const summaryMaxLengthInput = document.getElementById('summary-max-length');
-    const slackWebhookInput = document.getElementById('slack-webhook');
     const saveBtn = document.getElementById('save-settings');
     const status = document.getElementById('status');
     const groqSuggestions = document.getElementById('groq-suggestions');
@@ -44,14 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     populateSuggestions('groq', groqSuggestions);
     populateSuggestions('openrouter', openRouterSuggestions);
 
-    // Button checkboxes
-    const btnChecks = {
-        markdown: document.getElementById('btn-markdown'),
-        backlog: document.getElementById('btn-backlog'),
-        scrapbox: document.getElementById('btn-scrapbox'),
-        onlyUrl: document.getElementById('btn-onlyUrl')
-    };
-
     const toggleAi = document.getElementById('toggle-ai');
     const toggleQr = document.getElementById('toggle-qr');
 
@@ -61,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'groqApiKey', 'groqModel',
         'openrouterApiKey', 'openrouterModel',
         'summaryLanguage', 'summaryMaxLength',
-        'slackWebhook', 'enabledButtons', 'showAi', 'showQr'
+        'showAi', 'showQr'
     ], (items) => {
         if (items.aiProvider) providerSelect.value = items.aiProvider;
         if (items.groqApiKey) groqApiKeyInput.value = items.groqApiKey;
@@ -70,16 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (items.openrouterModel) openRouterModelInput.value = items.openrouterModel;
         if (items.summaryLanguage) summaryLanguageInput.value = items.summaryLanguage;
         if (items.summaryMaxLength) summaryMaxLengthInput.value = items.summaryMaxLength;
-        if (items.slackWebhook) slackWebhookInput.value = items.slackWebhook;
 
         toggleAi.checked = items.showAi !== false;
         toggleQr.checked = items.showQr !== false;
-
-        if (items.enabledButtons) {
-            Object.keys(btnChecks).forEach(key => {
-                btnChecks[key].checked = items.enabledButtons[key] !== false;
-            });
-        }
     });
 
     // Save settings
@@ -91,14 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const openrouterModel = openRouterModelInput.value;
         const summaryLanguage = summaryLanguageInput.value;
         const summaryMaxLength = summaryMaxLengthInput.value;
-        const slackWebhook = slackWebhookInput.value;
         const showAi = toggleAi.checked;
         const showQr = toggleQr.checked;
-
-        const enabledButtons = {};
-        Object.keys(btnChecks).forEach(key => {
-            enabledButtons[key] = btnChecks[key].checked;
-        });
 
         chrome.storage.sync.set({
             aiProvider,
@@ -108,8 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
             openrouterModel,
             summaryLanguage,
             summaryMaxLength,
-            slackWebhook,
-            enabledButtons,
             showAi,
             showQr
         }, () => {

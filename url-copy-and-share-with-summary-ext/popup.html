@@ -7,7 +7,6 @@
     <script defer src="qrcode.js"></script>
     <script defer src="ai_service.js"></script>
     <script defer src="image_service.js"></script>
-    <script defer src="slack_service.js"></script>
     <script defer src="popup.js"></script>
 </head>
 
@@ -22,29 +21,15 @@
             <div id="copied" data-i18n="copied">Copied!</div>
         </div>
 
-        <section id="copy-section">
-            <div class="section-title" data-i18n="copyMenu">Copy</div>
-            <div id="copy-buttons" class="grid">
-                <button id="simple" class="primary-button">Simple (Title URL)</button>
-                <button id="simpleBreak" class="primary-button">Simple /w Breakline</button>
-                <button id="summaryUrl" class="primary-button ai-dependent" disabled>Summary /w URL</button>
-            </div>
-            <div class="preview-area" style="margin-top: 10px;">
-                <div class="section-title-small" data-i18n="copyPreview">Copy Preview</div>
-                <textarea id="copy-preview" readonly></textarea>
-            </div>
-        </section>
-
-        <section id="share-section">
-            <div class="section-title" data-i18n="shareMenu">Share</div>
+        <!-- 1. Unified Preview & Copy Section -->
+        <section id="preview-section" class="preview-module">
+            <div class="section-title" data-i18n="copyPreview">Preview & Copy</div>
             <div class="share-options">
                 <div class="checkbox-group">
                     <label class="checkbox-item"><input type="checkbox" id="opt-title" checked> <span
                             data-i18n="title">Title</span></label>
                     <label class="checkbox-item"><input type="checkbox" id="opt-summary" class="ai-dependent" disabled>
                         <span data-i18n="summary">Summary</span></label>
-                    <label class="checkbox-item"><input type="checkbox" id="opt-image" class="ai-dependent" disabled>
-                        <span data-i18n="eyecatch">Eye-catch</span></label>
                     <label class="checkbox-item"><input type="checkbox" id="opt-hashtags" class="ai-dependent" disabled>
                         <span data-i18n="hashtags">Hashtags</span></label>
                     <label class="checkbox-item"><input type="checkbox" id="opt-newline" checked> <span
@@ -52,19 +37,17 @@
                 </div>
             </div>
 
-            <div class="preview-area">
-                <div class="section-title-small" data-i18n="sharePreview">Share Preview</div>
+            <div class="preview-area-large">
                 <textarea id="share-preview" readonly></textarea>
             </div>
 
-            <div id="social-buttons" class="social-grid">
-                <button id="share-x" class="primary-button social-btn"><span>X</span></button>
-                <button id="share-fb" class="primary-button social-btn"><span>FB</span></button>
-                <button id="share-slack" class="primary-button social-btn ai-dependent"
-                    disabled><span>Slack</span></button>
-            </div>
+            <button id="copy-clipboard" class="primary-button"
+                style="width: 100%; margin-top: 10px; height: 45px; font-size: 15px;">
+                <span data-i18n="copyToClipboard">Copy to Clipboard</span>
+            </button>
         </section>
 
+        <!-- 2. AI Summary Section -->
         <section id="result-section" class="ai-section">
             <div class="section-title">
                 <span data-i18n="summary">Summary</span>
@@ -82,8 +65,21 @@
             <div id="ai-result" style="display: none;">
                 <textarea id="summary-text" readonly></textarea>
             </div>
+        </section>
 
-            <div class="section-title" data-i18n="eyecatch">Eye-catch</div>
+        <!-- 3. Eye-catch Section -->
+        <section id="eyecatch-section" class="ai-section">
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span data-i18n="eyecatch">Eye-catch</span>
+                <div style="display: flex; align-items: center;">
+                    <span data-i18n="template" style="font-size: 10px; margin-right: 5px;">Template</span>
+                    <select id="eyecatch-template" class="small-select" style="margin-left: 0;">
+                        <option value="modern" data-i18n="templateModern">Modern Gradient</option>
+                        <option value="white" data-i18n="templateWhite">Classic White</option>
+                        <option value="navy" data-i18n="templateNavy">Navy Professional</option>
+                    </select>
+                </div>
+            </div>
             <button id="generate-image" class="primary-button ai-menu" style="width: 100%;"
                 data-i18n="generateEyecatch">Generate Eye-catch</button>
             <div id="eyecatch-preview" style="display: none; margin-top: 10px;">
@@ -97,6 +93,7 @@
             </div>
         </section>
 
+        <!-- 4. QR Code Section -->
         <section id="tools-section" class="qr-section">
             <div class="section-title">QR Code</div>
             <div style="text-align: center;">

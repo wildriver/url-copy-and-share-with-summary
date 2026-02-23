@@ -78,7 +78,7 @@
         "message": "改行を入れる"
     },
     "copyPreview": {
-        "message": "コピー内容のプレビュー"
+        "message": "プレビューとコピー"
     },
     "downloadImage": {
         "message": "画像をダウンロード"
@@ -102,6 +102,21 @@
         "message": "最大文字数"
     },
     "optimizeForX": {
-        "message": "X用に最適化"
+        "message": "Xモード"
+    },
+    "copyToClipboard": {
+        "message": "クリップボードにコピー"
+    },
+    "template": {
+        "message": "テンプレート"
+    },
+    "templateModern": {
+        "message": "モダン・グラデーション"
+    },
+    "templateWhite": {
+        "message": "クラシック・ホワイト"
+    },
+    "templateNavy": {
+        "message": "ネイビー・プロフェッショナル"
     }
 }

@@ -200,26 +200,29 @@ textarea {
     accent-color: var(--primary);
 }
 
-.social-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.social-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 12px 8px;
-}
-
-.preview-area {
+.preview-area-large {
     margin: 15px 0;
     padding: 12px;
     background: hsla(230, 15%, 5%, 0.4);
     border-radius: 8px;
     border: 1px dashed var(--border);
+}
+
+#share-preview {
+    width: 100%;
+    height: 160px;
+    /* Increased from 60px */
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 13px;
+    /* Slightly larger for readability */
+    padding: 0;
+    margin: 0;
+    line-height: 1.5;
+    overflow-y: auto;
+    resize: none;
+    outline: none;
 }
 
 .section-title-small {
@@ -228,19 +231,6 @@ textarea {
     text-transform: uppercase;
     color: var(--text-muted);
     margin-bottom: 8px;
-}
-
-#share-preview {
-    width: 100%;
-    height: 60px;
-    background: transparent;
-    border: none;
-    color: var(--text);
-    font-size: 11px;
-    padding: 0;
-    margin: 0;
-    line-height: 1.4;
-    overflow-y: auto;
 }
 
 .small-select {

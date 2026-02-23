@@ -37,6 +37,7 @@
 
         input[type="text"],
         input[type="password"],
+        input[type="number"],
         select {
             width: 100%;
             padding: 10px;
@@ -76,6 +77,7 @@
         <h1 data-i18n="settings">Settings</h1>
     </header>
     <main class="grid-settings">
+        <!-- AI Provider Configuration -->
         <section class="card">
             <h2 data-i18n="aiProviderLabel">AI Provider</h2>
 
@@ -127,6 +129,7 @@
             </div>
         </section>
 
+        <!-- AI Summary Style -->
         <section class="card">
             <label data-i18n="aiSettings">AI Summary Style</label>
             <div class="field">
@@ -139,23 +142,7 @@
             </div>
         </section>
 
-        <section class="card">
-            <label data-i18n="slackWebhook">Slack Webhook URL</label>
-            <div class="field">
-                <input type="text" id="slack-webhook" placeholder="https://hooks.slack.com/services/...">
-            </div>
-        </section>
-
-        <section class="card">
-            <label data-i18n="enabledButtons">Enabled Copy Buttons</label>
-            <div class="checkbox-list" id="button-settings">
-                <label class="checkbox-item"><input type="checkbox" id="btn-markdown" checked> Markdown</label>
-                <label class="checkbox-item"><input type="checkbox" id="btn-backlog" checked> Backlog</label>
-                <label class="checkbox-item"><input type="checkbox" id="btn-scrapbox" checked> Scrapbox</label>
-                <label class="checkbox-item"><input type="checkbox" id="btn-onlyUrl" checked> URL Only</label>
-            </div>
-        </section>
-
+        <!-- UI Visibility -->
         <section class="card">
             <label>UI Visibility</label>
             <div class="checkbox-list">
