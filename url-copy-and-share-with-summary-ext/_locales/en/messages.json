@@ -79,5 +79,17 @@
     },
     "copyPreview": {
         "message": "Copy Preview"
+    },
+    "downloadImage": {
+        "message": "Download Image"
+    },
+    "aiProviderLabel": {
+        "message": "AI Provider"
+    },
+    "groqApiKey": {
+        "message": "Groq API Key"
+    },
+    "openRouterApiKey": {
+        "message": "OpenRouter API Key"
     }
 }

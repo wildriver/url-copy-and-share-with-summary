@@ -5,11 +5,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const providerSelect = document.getElementById('ai-provider');
-    const apiKeyInput = document.getElementById('api-key');
-    const modelInput = document.getElementById('ai-model');
+    const groqApiKeyInput = document.getElementById('groq-api-key');
+    const groqModelInput = document.getElementById('groq-model');
+    const openRouterApiKeyInput = document.getElementById('openrouter-api-key');
+    const openRouterModelInput = document.getElementById('openrouter-model');
     const slackWebhookInput = document.getElementById('slack-webhook');
     const saveBtn = document.getElementById('save-settings');
     const status = document.getElementById('status');
+    const groqSuggestions = document.getElementById('groq-suggestions');
+    const openRouterSuggestions = document.getElementById('openrouter-suggestions');
+
+    const recommendedModels = {
+        groq: [
+            'llama-3.3-70b-versatile',
+            'llama-3.1-8b-instant',
+            'mixtral-8x7b-32768',
+            'gemma2-9b-it'
+        ],
+        openrouter: [
+            'nvidia/nemotron-3-nano-34b-a2.5b:free',
+            'google/gemini-flash-1.5-free',
+            'meta-llama/llama-3.3-70b-instruct:free',
+            'openai/gpt-4o-mini'
+        ]
+    };
+
+    const populateSuggestions = (provider, datalist) => {
+        datalist.innerHTML = '';
+        recommendedModels[provider].forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            datalist.appendChild(option);
+        });
+    };
+
+    populateSuggestions('groq', groqSuggestions);
+    populateSuggestions('openrouter', openRouterSuggestions);
 
     // Button checkboxes
     const btnChecks = {
@@ -23,10 +54,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleQr = document.getElementById('toggle-qr');
 
     // Load saved settings
-    chrome.storage.sync.get(['aiProvider', 'apiKey', 'aiModel', 'slackWebhook', 'enabledButtons', 'showAi', 'showQr'], (items) => {
+    chrome.storage.sync.get([
+        'aiProvider',
+        'groqApiKey', 'groqModel',
+        'openrouterApiKey', 'openrouterModel',
+        'slackWebhook', 'enabledButtons', 'showAi', 'showQr'
+    ], (items) => {
         if (items.aiProvider) providerSelect.value = items.aiProvider;
-        if (items.apiKey) apiKeyInput.value = items.apiKey;
-        if (items.aiModel) modelInput.value = items.aiModel;
+        if (items.groqApiKey) groqApiKeyInput.value = items.groqApiKey;
+        if (items.groqModel) groqModelInput.value = items.groqModel;
+        if (items.openrouterApiKey) openRouterApiKeyInput.value = items.openrouterApiKey;
+        if (items.openrouterModel) openRouterModelInput.value = items.openrouterModel;
         if (items.slackWebhook) slackWebhookInput.value = items.slackWebhook;
 
         toggleAi.checked = items.showAi !== false;
@@ -42,8 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save settings
     saveBtn.addEventListener('click', () => {
         const aiProvider = providerSelect.value;
-        const apiKey = apiKeyInput.value;
-        const aiModel = modelInput.value;
+        const groqApiKey = groqApiKeyInput.value;
+        const groqModel = groqModelInput.value;
+        const openrouterApiKey = openRouterApiKeyInput.value;
+        const openrouterModel = openRouterModelInput.value;
         const slackWebhook = slackWebhookInput.value;
         const showAi = toggleAi.checked;
         const showQr = toggleQr.checked;
@@ -55,8 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chrome.storage.sync.set({
             aiProvider,
-            apiKey,
-            aiModel,
+            groqApiKey,
+            groqModel,
+            openrouterApiKey,
+            openrouterModel,
             slackWebhook,
             enabledButtons,
             showAi,

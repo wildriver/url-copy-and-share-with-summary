@@ -241,3 +241,33 @@ textarea {
     line-height: 1.4;
     overflow-y: auto;
 }
+
+.small-select {
+    padding: 2px 4px;
+    font-size: 11px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 4px;
+    margin-left: 10px;
+    outline: none;
+    cursor: pointer;
+}
+
+.small-select:hover {
+    border-color: var(--primary);
+}
+
+.canvas-container {
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #000;
+    display: flex;
+    justify-content: center;
+}
+
+#eyecatch-canvas {
+    max-width: 100%;
+    height: auto !important;
+}

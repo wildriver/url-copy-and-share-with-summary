@@ -79,5 +79,17 @@
     },
     "copyPreview": {
         "message": "コピー内容のプレビュー"
+    },
+    "downloadImage": {
+        "message": "画像をダウンロード"
+    },
+    "aiProviderLabel": {
+        "message": "AIプロバイダー"
+    },
+    "groqApiKey": {
+        "message": "Groq APIキー"
+    },
+    "openRouterApiKey": {
+        "message": "OpenRouter APIキー"
     }
 }

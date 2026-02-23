@@ -99,10 +99,13 @@ const updatePreview = (title, url) => {
 }
 
 const updateVisibilityUI = (settings, isShareable) => {
+    const selectedProvider = document.getElementById('popup-ai-provider').value;
+    const apiKey = selectedProvider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
+
     const summaryArea = document.getElementById("summary-text");
     const summaryVal = summaryArea ? summaryArea.value : "";
     const hasSummary = summaryVal && !summaryVal.includes("...") && !summaryVal.startsWith("Error");
-    const hasApiKey = !!settings.apiKey;
+    const hasApiKey = !!apiKey;
     const showAi = settings.showAi !== false;
     const showQr = settings.showQr !== false;
 
@@ -165,6 +168,13 @@ const renderDynamicButtons = (enabledButtons, data) => {
     });
 }
 
+const downloadCanvas = (canvas, filename) => {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
 let currentCopyFormat = "simple";
 
 const onInit = async () => {
@@ -176,7 +186,15 @@ const onInit = async () => {
     const data = await getUrlData();
     if (!data) return;
 
-    const settings = await chrome.storage.sync.get(['apiKey', 'slackWebhook', 'enabledButtons', 'showAi', 'showQr']);
+    const settings = await chrome.storage.sync.get([
+        'aiProvider',
+        'groqApiKey', 'groqModel',
+        'openrouterApiKey', 'openrouterModel',
+        'slackWebhook', 'enabledButtons', 'showAi', 'showQr'
+    ]);
+
+    const providerSelect = document.getElementById('popup-ai-provider');
+    if (settings.aiProvider) providerSelect.value = settings.aiProvider;
 
     updateVisibilityUI(settings, data.isShareable);
     renderDynamicButtons(settings.enabledButtons, data);
@@ -192,6 +210,11 @@ const onInit = async () => {
     copyText(formatTemplate("simple", data.title, data.url));
 
     // Event Listeners
+    providerSelect.onchange = () => {
+        updateVisibilityUI(settings, data.isShareable);
+        chrome.storage.sync.set({ aiProvider: providerSelect.value });
+    };
+
     document.getElementById("simple").onclick = () => {
         currentCopyFormat = "simple";
         const text = formatTemplate("simple", data.title, data.url);
@@ -224,6 +247,10 @@ const onInit = async () => {
         const area = document.getElementById("summary-text");
         const resDiv = document.getElementById("ai-result");
 
+        const provider = providerSelect.value;
+        const apiKey = provider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
+        const model = provider === 'groq' ? (settings.groqModel || 'llama-3.1-8b-instant') : (settings.openrouterModel || 'openai/gpt-4o-mini');
+
         btn.disabled = true;
         resDiv.style.display = "block";
         area.value = chrome.i18n.getMessage("summarizing");
@@ -233,7 +260,7 @@ const onInit = async () => {
                 target: { tabId: data.tabId },
                 func: () => document.body.innerText,
             });
-            const summary = await window.aiService.getSummary(results[0].result);
+            const summary = await window.aiService.getSummary(results[0].result, provider, apiKey, model);
             area.value = summary;
             updateVisibilityUI(settings, data.isShareable);
             updatePreview(data.title, data.url);
@@ -250,6 +277,11 @@ const onInit = async () => {
         const canvas = document.getElementById("eyecatch-canvas");
         document.getElementById("eyecatch-preview").style.display = "block";
         window.imageService.generateEyeCatch(canvas, data.title, data.url);
+    };
+
+    document.getElementById("download-eyecatch").onclick = () => {
+        const canvas = document.getElementById("eyecatch-canvas");
+        downloadCanvas(canvas, `eyecatch-${Date.now()}.png`);
     };
 
     // Sharing

@@ -77,20 +77,53 @@
     </header>
     <main class="grid-settings">
         <section class="card">
-            <label data-i18n="aiProvider">AI Provider</label>
-            <div class="field">
+            <h2 data-i18n="aiProviderLabel">AI Provider</h2>
+
+            <div class="field" style="border-top: 1px solid var(--border); padding-top: 15px; margin-top: 10px;">
+                <label style="color: var(--primary);">Groq</label>
+                <div class="field">
+                    <label data-i18n="groqApiKey">Groq API Key</label>
+                    <input type="password" id="groq-api-key" placeholder="gsk_••••••••••••">
+                </div>
+                <div class="field">
+                    <label data-i18n="aiModel">Model Name</label>
+                    <input type="text" id="groq-model" list="groq-suggestions" placeholder="llama-3.1-8b-instant">
+                    <datalist id="groq-suggestions">
+                        <!-- Populated by JS -->
+                    </datalist>
+                    <div style="margin-top: 5px; font-size: 12px;">
+                        <a href="https://console.groq.com/docs/models" target="_blank"
+                            style="color: var(--primary);">View Groq Models</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field" style="border-top: 1px solid var(--border); padding-top: 15px; margin-top: 20px;">
+                <label style="color: var(--primary);">OpenRouter</label>
+                <div class="field">
+                    <label data-i18n="openRouterApiKey">OpenRouter API Key</label>
+                    <input type="password" id="openrouter-api-key" placeholder="sk-or-••••••••••••">
+                </div>
+                <div class="field">
+                    <label data-i18n="aiModel">Model Name</label>
+                    <input type="text" id="openrouter-model" list="openrouter-suggestions"
+                        placeholder="openai/gpt-4o-mini">
+                    <datalist id="openrouter-suggestions">
+                        <!-- Populated by JS -->
+                    </datalist>
+                    <div style="margin-top: 5px; font-size: 12px;">
+                        <a href="https://openrouter.ai/models" target="_blank" style="color: var(--primary);">View
+                            OpenRouter Models</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field" style="border-top: 1px solid var(--border); padding-top: 15px;">
+                <label data-i18n="aiProvider">Default AI Provider</label>
                 <select id="ai-provider">
                     <option value="groq">Groq</option>
                     <option value="openrouter">OpenRouter</option>
                 </select>
-            </div>
-            <div class="field">
-                <label data-i18n="apiKey">API Key</label>
-                <input type="password" id="api-key" placeholder="••••••••••••">
-            </div>
-            <div class="field">
-                <label data-i18n="aiModel">Model Name</label>
-                <input type="text" id="ai-model" placeholder="llama3-8b-8192">
             </div>
         </section>
 
