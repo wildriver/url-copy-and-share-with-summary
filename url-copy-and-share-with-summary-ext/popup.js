@@ -5,6 +5,8 @@ let lastSummary = "";
 let lastSummaryX = "";
 let isSummarizing = false;
 
+const DEFAULT_HASHTAGS = "#URLCopyAndShare #AI #Efficiency";
+
 const copyText = async text => {
     try {
         await navigator.clipboard.writeText(text);
@@ -81,7 +83,7 @@ const generatePreviewText = (title, url) => {
     parts.push(url);
 
     if (isHashtagsChecked) {
-        parts.push("#URLCopyAndShare");
+        parts.push(DEFAULT_HASHTAGS);
     }
 
     const useNewline = document.getElementById('opt-newline').checked;
@@ -122,20 +124,29 @@ const updateVisibilityUI = (settings, isShareable) => {
     aiSections.forEach(sec => sec.style.display = (showAi) ? 'block' : 'none');
 
     const qrSection = document.getElementById('tools-section');
-    qrSection.style.display = (showQr) ? 'block' : 'none';
+    qrSection.style.display = (showQr) ? 'block' : 'none');
 
-    // UX Improvement: Checkboxes are enabled if API is present, regardless of whether summary exists yet
+    // Enable checkboxes if API key is present
     const optSummary = document.getElementById('opt-summary');
     optSummary.disabled = !isShareable || !hasApiKey;
 
     const optSummaryX = document.getElementById('opt-summary-x');
     optSummaryX.disabled = !isShareable || !hasApiKey;
 
+    const optEyecatchAi = document.getElementById('opt-eyecatch-ai');
+    optEyecatchAi.disabled = !isShareable || !hasApiKey;
+
     const optHashtags = document.getElementById('opt-hashtags');
     optHashtags.disabled = !isShareable;
 
     const summarizeBtn = document.getElementById('summarize');
     summarizeBtn.disabled = !hasApiKey || !isShareable;
+
+    const generateImageBtn = document.getElementById('generate-image');
+    generateImageBtn.disabled = !isShareable; // Allow non-AI image gen if possible? User asked for disable if no key for AI features.
+    if (!hasApiKey && document.getElementById('opt-eyecatch-ai').checked) {
+        document.getElementById('opt-eyecatch-ai').checked = false;
+    }
 }
 
 const downloadCanvas = (canvas, filename) => {
@@ -186,7 +197,7 @@ const onInit = async () => {
 
         if (targetXMode) {
             const urlLen = 23;
-            const hashtagLen = document.getElementById('opt-hashtags').checked ? 16 : 0;
+            const hashtagLen = document.getElementById('opt-hashtags').checked ? DEFAULT_HASHTAGS.length : 0;
             const titleLen = document.getElementById('opt-title').checked ? data.title.length : 0;
             const separatorLen = 4;
             const fixedPartsLen = urlLen + hashtagLen + titleLen + separatorLen;
@@ -257,11 +268,37 @@ const onInit = async () => {
     };
 
     // Eye-catch
-    document.getElementById("generate-image").onclick = () => {
+    document.getElementById("generate-image").onclick = async () => {
+        const btn = document.getElementById("generate-image");
         const canvas = document.getElementById("eyecatch-canvas");
         const template = document.getElementById("eyecatch-template").value;
+        const aiAssist = document.getElementById("opt-eyecatch-ai").checked;
+
+        let displayTitle = data.title;
+
+        if (aiAssist) {
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = chrome.i18n.getMessage("summarizing");
+
+            try {
+                const provider = providerSelect.value;
+                const apiKey = provider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
+                const model = provider === 'groq' ? (settings.groqModel || 'llama-3.1-8b-instant') : (settings.openrouterModel || 'openai/gpt-4o-mini');
+                const language = settings.summaryLanguage || 'Japanese';
+
+                displayTitle = await window.aiService.getCatchyTitle(data.title, provider, apiKey, model, language);
+            } catch (e) {
+                console.error("AI Assist Title Error:", e);
+                // Fallback to original title
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
         document.getElementById("eyecatch-preview").style.display = "block";
-        window.imageService.generateEyeCatch(canvas, data.title, data.url, template);
+        window.imageService.generateEyeCatch(canvas, displayTitle, data.url, template);
     };
 
     document.getElementById("download-eyecatch").onclick = () => {

@@ -1,9 +1,12 @@
 {
     "appName": {
-        "message": "URL Copy and Share with Summary"
+        "message": "URL Copy and Share"
     },
     "appDesc": {
         "message": "Copy URLs with AI summary and share to social media."
+    },
+    "apiKeyNotice": {
+        "message": "Features marked with * require an API Key."
     },
     "settings": {
         "message": "Settings"
@@ -15,16 +18,16 @@
         "message": "Share"
     },
     "generateSummary": {
-        "message": "Generate AI Summary"
+        "message": "Generate AI Summary*"
     },
     "generateEyecatch": {
-        "message": "Generate Eye-catch"
+        "message": "Generate Eye-catch*"
     },
     "summarizing": {
         "message": "Summarizing..."
     },
     "summary": {
-        "message": "Summary"
+        "message": "Summary*"
     },
     "eyecatch": {
         "message": "Eye-catch"

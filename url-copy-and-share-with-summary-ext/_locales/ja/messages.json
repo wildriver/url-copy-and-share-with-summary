@@ -15,16 +15,19 @@
         "message": "共有"
     },
     "generateSummary": {
-        "message": "AI要約を生成"
+        "message": "AI要約を生成*"
     },
     "generateEyecatch": {
-        "message": "アイキャッチを生成"
+        "message": "アイキャッチを生成*"
+    },
+    "eyeCatchAiAssist": {
+        "message": "AIアシスト*"
     },
     "summarizing": {
         "message": "要約中..."
     },
     "summary": {
-        "message": "要約"
+        "message": "要約*"
     },
     "eyecatch": {
         "message": "アイキャッチ"
