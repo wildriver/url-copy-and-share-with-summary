@@ -45,20 +45,21 @@
                         <span data-i18n="hashtags">Hashtags</span></label>
                 </div>
             </div>
+
+            <div class="preview-area">
+                <div class="section-title-small" data-i18n="sharePreview">Share Preview</div>
+                <textarea id="share-preview" readonly></textarea>
+            </div>
+
             <div id="social-buttons" class="social-grid">
-                <button id="share-x" class="primary-button social-btn">
-                    <span>X</span>
-                </button>
-                <button id="share-fb" class="primary-button social-btn">
-                    <span>FB</span>
-                </button>
-                <button id="share-slack" class="primary-button social-btn ai-dependent" disabled>
-                    <span>Slack</span>
-                </button>
+                <button id="share-x" class="primary-button social-btn"><span>X</span></button>
+                <button id="share-fb" class="primary-button social-btn"><span>FB</span></button>
+                <button id="share-slack" class="primary-button social-btn ai-dependent"
+                    disabled><span>Slack</span></button>
             </div>
         </section>
 
-        <section id="result-section">
+        <section id="result-section" class="ai-section">
             <div class="section-title" data-i18n="summary">Summary</div>
             <button id="summarize" class="primary-button ai-menu" style="width: 100%; margin-bottom: 10px;"
                 data-i18n="generateSummary">Generate AI Summary</button>
@@ -74,7 +75,7 @@
             </div>
         </section>
 
-        <section id="tools-section">
+        <section id="tools-section" class="qr-section">
             <div class="section-title">QR Code</div>
             <div style="text-align: center;">
                 <div id="qrcode-container">

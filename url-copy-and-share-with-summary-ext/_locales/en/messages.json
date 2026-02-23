@@ -64,5 +64,14 @@
     },
     "invalidUrl": {
         "message": "Sharing is not available for this type of page."
+    },
+    "showAiFeatures": {
+        "message": "Show AI Features (Summary, Image)"
+    },
+    "showQrCode": {
+        "message": "Show QR Code"
+    },
+    "sharePreview": {
+        "message": "Share Preview"
     }
 }

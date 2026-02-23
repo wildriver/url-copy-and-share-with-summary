@@ -64,5 +64,14 @@
     },
     "invalidUrl": {
         "message": "このページ形式では共有機能を利用できません。"
+    },
+    "showAiFeatures": {
+        "message": "AI機能（要約・画像生成）を表示する"
+    },
+    "showQrCode": {
+        "message": "QRコードを表示する"
+    },
+    "sharePreview": {
+        "message": "共有プレビュー"
     }
 }

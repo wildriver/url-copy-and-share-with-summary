@@ -19,12 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
         onlyUrl: document.getElementById('btn-onlyUrl')
     };
 
+    const toggleAi = document.getElementById('toggle-ai');
+    const toggleQr = document.getElementById('toggle-qr');
+
     // Load saved settings
-    chrome.storage.sync.get(['aiProvider', 'apiKey', 'aiModel', 'slackWebhook', 'enabledButtons'], (items) => {
+    chrome.storage.sync.get(['aiProvider', 'apiKey', 'aiModel', 'slackWebhook', 'enabledButtons', 'showAi', 'showQr'], (items) => {
         if (items.aiProvider) providerSelect.value = items.aiProvider;
         if (items.apiKey) apiKeyInput.value = items.apiKey;
         if (items.aiModel) modelInput.value = items.aiModel;
         if (items.slackWebhook) slackWebhookInput.value = items.slackWebhook;
+
+        toggleAi.checked = items.showAi !== false;
+        toggleQr.checked = items.showQr !== false;
 
         if (items.enabledButtons) {
             Object.keys(btnChecks).forEach(key => {
@@ -39,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiKey = apiKeyInput.value;
         const aiModel = modelInput.value;
         const slackWebhook = slackWebhookInput.value;
+        const showAi = toggleAi.checked;
+        const showQr = toggleQr.checked;
 
         const enabledButtons = {};
         Object.keys(btnChecks).forEach(key => {
@@ -50,7 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
             apiKey,
             aiModel,
             slackWebhook,
-            enabledButtons
+            enabledButtons,
+            showAi,
+            showQr
         }, () => {
             status.style.display = 'block';
             setTimeout(() => {
