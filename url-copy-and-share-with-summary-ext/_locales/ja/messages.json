@@ -73,5 +73,8 @@
     },
     "sharePreview": {
         "message": "共有プレビュー"
+    },
+    "useNewline": {
+        "message": "改行を入れる"
     }
 }

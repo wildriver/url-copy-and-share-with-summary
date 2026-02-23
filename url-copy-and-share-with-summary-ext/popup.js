@@ -76,7 +76,9 @@ const generateShareText = (title, url, summary) => {
     if (document.getElementById('opt-hashtags').checked) {
         parts.push("#URLCopyAndShare");
     }
-    return parts.join("\n");
+
+    const useNewline = document.getElementById('opt-newline').checked;
+    return parts.join(useNewline ? "\n" : " ");
 }
 
 const updatePreview = (title, url) => {
