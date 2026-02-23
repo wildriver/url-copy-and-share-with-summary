@@ -3,6 +3,8 @@
 An enhanced Chrome extension that helps you copy URLs in various formats, generates AI-powered summaries, and creates social media eye-catch images.
 
 ## Features
+- **Premium Design**: Modern, glassmorphism-inspired UI with a sleek dark mode.
+- **Bilingual Support**: Fully localized in English and Japanese.
 - **URL Copy**: Copy current URL in Markdown, Scrapbox, Backlog, or simple formats.
 - **AI Summary**: Generate a concise summary of the page using Groq or OpenRouter.
 - **Eye-catch Generation**: Create a 1200x630px social share image with title and URL overlay.
