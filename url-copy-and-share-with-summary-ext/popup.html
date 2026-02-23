@@ -30,6 +30,9 @@
                             data-i18n="title">Title</span></label>
                     <label class="checkbox-item"><input type="checkbox" id="opt-summary" class="ai-dependent" disabled>
                         <span data-i18n="summary">Summary</span></label>
+                    <label class="checkbox-item"><input type="checkbox" id="opt-summary-x" class="ai-dependent"
+                            disabled>
+                        <span data-i18n="summaryForX">Summary for X</span></label>
                     <label class="checkbox-item"><input type="checkbox" id="opt-hashtags" class="ai-dependent" disabled>
                         <span data-i18n="hashtags">Hashtags</span></label>
                     <label class="checkbox-item"><input type="checkbox" id="opt-newline" checked> <span
@@ -39,6 +42,7 @@
 
             <div class="preview-area-large">
                 <textarea id="share-preview" readonly></textarea>
+                <div id="char-count" class="char-count">0</div>
             </div>
 
             <button id="copy-clipboard" class="primary-button"

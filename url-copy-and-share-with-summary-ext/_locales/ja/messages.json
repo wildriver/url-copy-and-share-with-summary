@@ -102,7 +102,10 @@
         "message": "最大文字数"
     },
     "optimizeForX": {
-        "message": "Xモード"
+        "message": "Xモード (140文字)"
+    },
+    "summaryForX": {
+        "message": "要約 for X"
     },
     "copyToClipboard": {
         "message": "クリップボードにコピー"

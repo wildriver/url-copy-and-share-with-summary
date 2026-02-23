@@ -93,7 +93,10 @@
         "message": "Max Character Count"
     },
     "optimizeForX": {
-        "message": "X Mode"
+        "message": "X Mode (140 characters)"
+    },
+    "summaryForX": {
+        "message": "Summary for X"
     },
     "copyToClipboard": {
         "message": "Copy to Clipboard"

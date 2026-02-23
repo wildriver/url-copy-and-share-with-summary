@@ -1,5 +1,9 @@
 const AMAZON_HOST = "www.amazon.co.jp";
 
+// Internal State
+let lastSummary = "";
+let lastSummaryX = "";
+
 const copyText = async text => {
     try {
         await navigator.clipboard.writeText(text);
@@ -44,22 +48,29 @@ const getUrlData = async () => {
     };
 }
 
-const generatePreviewText = (title, url, summary) => {
+const generatePreviewText = (title, url) => {
     let parts = [];
     const isSummaryChecked = document.getElementById('opt-summary').checked;
+    const isSummaryXChecked = document.getElementById('opt-summary-x').checked;
     const isTitleChecked = document.getElementById('opt-title').checked;
     const isHashtagsChecked = document.getElementById('opt-hashtags').checked;
 
-    if (isSummaryChecked && summary && !summary.includes("...") && !summary.startsWith("Error")) {
-        parts.push(summary);
-        if (isTitleChecked) {
-            parts.push("-");
-        }
+    if (isSummaryChecked && lastSummary) {
+        parts.push(lastSummary);
+        if (isTitleChecked || isSummaryXChecked) parts.push("-");
     }
+
+    if (isSummaryXChecked && lastSummaryX) {
+        parts.push(lastSummaryX);
+        if (isTitleChecked) parts.push("-");
+    }
+
     if (isTitleChecked) {
         parts.push(title);
     }
+
     parts.push(url);
+
     if (isHashtagsChecked) {
         parts.push("#URLCopyAndShare");
     }
@@ -69,40 +80,60 @@ const generatePreviewText = (title, url, summary) => {
 }
 
 const updatePreview = (title, url) => {
-    const summaryArea = document.getElementById("summary-text");
-    const summary = summaryArea ? summaryArea.value : "";
-    const text = generatePreviewText(title, url, summary);
-    document.getElementById('share-preview').value = text;
+    const text = generatePreviewText(title, url);
+    const previewArea = document.getElementById('share-preview');
+    previewArea.value = text;
+
+    // Update char count
+    document.getElementById('char-count').textContent = text.length;
 }
 
 const updateVisibilityUI = (settings, isShareable) => {
-    const selectedProvider = document.getElementById('popup-ai-provider').value;
+    const providerSelect = document.getElementById('popup-ai-provider');
+
+    // Filter providers based on API settings
+    const groqEnabled = !!settings.groqApiKey;
+    const openrouterEnabled = !!settings.openrouterApiKey;
+
+    Array.from(providerSelect.options).forEach(opt => {
+        if (opt.value === 'groq') opt.hidden = !groqEnabled;
+        if (opt.value === 'openrouter') opt.hidden = !openrouterEnabled;
+    });
+
+    // If current selected is hidden, switch to the first visible one
+    if (providerSelect.selectedOptions[0].hidden) {
+        const firstVisible = Array.from(providerSelect.options).find(opt => !opt.hidden);
+        if (firstVisible) providerSelect.value = firstVisible.value;
+    }
+
+    const selectedProvider = providerSelect.value;
     const apiKey = selectedProvider === 'groq' ? settings.groqApiKey : settings.openrouterApiKey;
 
-    const summaryArea = document.getElementById("summary-text");
-    const summaryVal = summaryArea ? summaryArea.value : "";
-    const hasSummary = summaryVal && !summaryVal.includes("...") && !summaryVal.startsWith("Error");
     const hasApiKey = !!apiKey;
     const showAi = settings.showAi !== false;
     const showQr = settings.showQr !== false;
 
-    // Independent Sections (Hide/Visible based on settings)
+    // AI Sections
     const aiSections = document.querySelectorAll('.ai-section');
     aiSections.forEach(sec => sec.style.display = (showAi) ? 'block' : 'none');
 
+    // QR Section
     const qrSection = document.getElementById('tools-section');
     qrSection.style.display = (showQr) ? 'block' : 'none';
 
-    // Checkboxes (Always visible, but disabled without prerequisites)
+    // Checkboxes (Active only if relevant data/API exists)
     const optSummary = document.getElementById('opt-summary');
-    optSummary.disabled = !hasApiKey || !isShareable || !hasSummary;
+    optSummary.disabled = !isShareable || !lastSummary;
+
+    const optSummaryX = document.getElementById('opt-summary-x');
+    optSummaryX.disabled = !isShareable || !lastSummaryX;
 
     const optHashtags = document.getElementById('opt-hashtags');
-    optHashtags.disabled = !hasApiKey || !isShareable;
+    optHashtags.disabled = !isShareable;
 
-    // AI Dependent inputs (Main summary/image actions)
-    const aiMenus = document.querySelectorAll('.ai-menu');
-    aiMenus.forEach(btn => btn.disabled = !hasApiKey || !isShareable);
+    // Summarize Button
+    const summarizeBtn = document.getElementById('summarize');
+    summarizeBtn.disabled = !hasApiKey || !isShareable;
 }
 
 const downloadCanvas = (canvas, filename) => {
@@ -113,6 +144,7 @@ const downloadCanvas = (canvas, filename) => {
 }
 
 const onInit = async () => {
+    // Localization
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const msg = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
         if (msg) el.textContent = msg;
@@ -132,19 +164,10 @@ const onInit = async () => {
     const providerSelect = document.getElementById('popup-ai-provider');
     if (settings.aiProvider) providerSelect.value = settings.aiProvider;
 
-    // Default: Only Title Checked
+    // Default Selection
     document.getElementById('opt-title').checked = true;
-    document.getElementById('opt-summary').checked = false;
-    document.getElementById('opt-hashtags').checked = false;
 
     updateVisibilityUI(settings, data.isShareable);
-
-    if (!data.isShareable) {
-        const info = document.getElementById('shortcutInfo');
-        info.textContent = chrome.i18n.getMessage("invalidUrl");
-        info.style.color = "#ff6b6b";
-    }
-
     updatePreview(data.title, data.url);
 
     // Event Listeners
@@ -180,13 +203,13 @@ const onInit = async () => {
         let maxLength = settings.summaryMaxLength || 200;
 
         if (xMode) {
+            // Precise X limit calculation
             const urlLen = 23;
             const hashtagLen = document.getElementById('opt-hashtags').checked ? 16 : 0;
             const titleLen = document.getElementById('opt-title').checked ? data.title.length : 0;
-            const newline = document.getElementById('opt-newline').checked;
-            const separatorLen = 3;
+            const separatorLen = 4; // separators for (summary, summaryX, title, url, hashtags)
             const fixedPartsLen = urlLen + hashtagLen + titleLen + separatorLen;
-            maxLength = Math.max(10, 140 - fixedPartsLen - 5);
+            maxLength = Math.max(10, 140 - fixedPartsLen - 2);
         }
 
         btn.disabled = true;
@@ -201,8 +224,13 @@ const onInit = async () => {
             const summary = await window.aiService.getSummary(results[0].result, provider, apiKey, model, language, maxLength);
             area.value = summary;
 
-            // Auto check summary if successful
-            document.getElementById('opt-summary').checked = true;
+            if (xMode) {
+                lastSummaryX = summary;
+                document.getElementById('opt-summary-x').checked = true;
+            } else {
+                lastSummary = summary;
+                document.getElementById('opt-summary').checked = true;
+            }
 
             updateVisibilityUI(settings, data.isShareable);
             updatePreview(data.title, data.url);
