@@ -61,5 +61,8 @@
     },
     "slackPostSuccess": {
         "message": "Slackに投稿しました！"
+    },
+    "invalidUrl": {
+        "message": "このページ形式では共有機能を利用できません。"
     }
 }

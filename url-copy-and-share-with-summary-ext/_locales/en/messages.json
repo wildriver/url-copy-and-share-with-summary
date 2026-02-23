@@ -61,5 +61,8 @@
     },
     "slackPostSuccess": {
         "message": "Posted to Slack!"
+    },
+    "invalidUrl": {
+        "message": "Sharing is not available for this type of page."
     }
 }

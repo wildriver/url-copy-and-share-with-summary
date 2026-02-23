@@ -24,12 +24,16 @@ const showCopied = _ => {
 }
 
 const getUrlData = async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    // Better tab query to ensure we get the page behind the popup
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    if (!tab) return null;
+
     return {
         url: extractAmazonUrl(tab.url),
         title: tab.title,
         rawUrl: tab.url,
-        tabId: tab.id
+        tabId: tab.id,
+        isShareable: tab.url.startsWith('http')
     };
 }
 
@@ -68,15 +72,23 @@ const generateShareText = (title, url, summary) => {
     return parts.join("\n");
 }
 
-const updateAiDependentUI = (hasApiKey, hasWebhook) => {
+const updateAiDependentUI = (hasApiKey, hasWebhook, isShareable) => {
     const aiElements = document.querySelectorAll('.ai-dependent');
     aiElements.forEach(el => {
-        el.disabled = !hasApiKey;
-        if (el.id === 'share-slack' && !hasWebhook) el.disabled = true;
+        el.disabled = !hasApiKey || !isShareable;
+        if (el.id === 'share-slack' && (!hasWebhook || !isShareable)) el.disabled = true;
     });
+
+    // Disable non-AI share buttons if not shareable
+    const shareBtns = document.querySelectorAll('.social-btn:not(.ai-dependent)');
+    shareBtns.forEach(btn => btn.disabled = !isShareable);
+
+    // Disable summarize/image if not shareable (scripting fails on internal pages)
+    const aiMenus = document.querySelectorAll('.ai-menu');
+    aiMenus.forEach(btn => btn.disabled = !hasApiKey || !isShareable);
 }
 
-const renderDynamicButtons = (enabledButtons) => {
+const renderDynamicButtons = (enabledButtons, data) => {
     const container = document.getElementById('copy-buttons');
     const types = ['markdown', 'backlog', 'scrapbox', 'onlyUrl'];
 
@@ -88,7 +100,6 @@ const renderDynamicButtons = (enabledButtons) => {
         btn.className = 'primary-button secondary-button';
         btn.textContent = type.charAt(0).toUpperCase() + type.slice(1);
         btn.addEventListener('click', async () => {
-            const data = await getUrlData();
             copyText(formatTemplate(type, data.title, data.url));
             showCopied();
         });
@@ -99,30 +110,36 @@ const renderDynamicButtons = (enabledButtons) => {
 const onInit = async () => {
     // i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
-        el.textContent = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
+        const msg = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
+        if (msg) el.textContent = msg;
     });
 
+    const data = await getUrlData();
+    if (!data) return;
+
     const settings = await chrome.storage.sync.get(['apiKey', 'slackWebhook', 'enabledButtons']);
-    updateAiDependentUI(!!settings.apiKey, !!settings.slackWebhook);
-    renderDynamicButtons(settings.enabledButtons);
+    updateAiDependentUI(!!settings.apiKey, !!settings.slackWebhook, data.isShareable);
+    renderDynamicButtons(settings.enabledButtons, data);
+
+    if (!data.isShareable) {
+        const info = document.getElementById('shortcutInfo');
+        info.textContent = chrome.i18n.getMessage("invalidUrl");
+        info.style.color = "#ff6b6b";
+    }
 
     // Initial copy
-    const initialData = await getUrlData();
-    copyText(formatTemplate("simple", initialData.title, initialData.url));
+    copyText(formatTemplate("simple", data.title, data.url));
 
     // Standard buttons
-    document.getElementById("simple").onclick = async () => {
-        const data = await getUrlData();
+    document.getElementById("simple").onclick = () => {
         copyText(formatTemplate("simple", data.title, data.url));
         showCopied();
     };
-    document.getElementById("simpleBreak").onclick = async () => {
-        const data = await getUrlData();
+    document.getElementById("simpleBreak").onclick = () => {
         copyText(formatTemplate("simpleBreak", data.title, data.url));
         showCopied();
     };
-    document.getElementById("summaryUrl").onclick = async () => {
-        const data = await getUrlData();
+    document.getElementById("summaryUrl").onclick = () => {
         copyText(formatTemplate("summaryUrl", data.title, data.url));
         showCopied();
     };
@@ -138,14 +155,12 @@ const onInit = async () => {
         area.value = chrome.i18n.getMessage("summarizing");
 
         try {
-            const data = await getUrlData();
             const results = await chrome.scripting.executeScript({
                 target: { tabId: data.tabId },
                 func: () => document.body.innerText,
             });
             const summary = await window.aiService.getSummary(results[0].result);
             area.value = summary;
-            updateAiDependentUI(true, !!settings.slackWebhook); // Re-enable if summary now exists
         } catch (e) {
             area.value = "Error: " + e.message;
         } finally {
@@ -154,28 +169,24 @@ const onInit = async () => {
     };
 
     // Eye-catch
-    document.getElementById("generate-image").onclick = async () => {
-        const data = await getUrlData();
+    document.getElementById("generate-image").onclick = () => {
         const canvas = document.getElementById("eyecatch-canvas");
         document.getElementById("eyecatch-preview").style.display = "block";
         window.imageService.generateEyeCatch(canvas, data.title, data.url);
     };
 
     // Sharing
-    document.getElementById("share-x").onclick = async () => {
-        const data = await getUrlData();
+    document.getElementById("share-x").onclick = () => {
         const summary = document.getElementById("summary-text").value;
         const text = generateShareText(data.title, data.url, summary);
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
     };
 
-    document.getElementById("share-fb").onclick = async () => {
-        const data = await getUrlData();
+    document.getElementById("share-fb").onclick = () => {
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(data.url)}`, '_blank');
     };
 
     document.getElementById("share-slack").onclick = async () => {
-        const data = await getUrlData();
         const summary = document.getElementById("summary-text").value;
         const text = generateShareText(data.title, data.url, summary);
         try {
@@ -187,9 +198,8 @@ const onInit = async () => {
     };
 
     // QR Code
-    const qrData = await getUrlData();
     new QRCode(document.getElementById("qrcode"), {
-        text: qrData.rawUrl,
+        text: data.rawUrl,
         width: 128,
         height: 128,
         correctLevel: QRCode.CorrectLevel.L
