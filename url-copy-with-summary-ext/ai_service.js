@@ -58,7 +58,29 @@ const callSingleProvider = async (prompt, provider, apiKey, model) => {
         if (remaining) chrome.storage.local.set({ groqRemaining: remaining });
     } else if (provider === 'openrouter') {
         const remaining = response.headers.get('x-ratelimit-remaining'); // Note: OpenRouter doesn't always send this for free tiers, or it might be a different header depending on specific endpoint.
-        if (remaining) chrome.storage.local.set({ openrouterRemaining: remaining });
+        if (remaining) {
+            chrome.storage.local.set({ openrouterRemaining: remaining });
+        } else {
+            // Fallback for OpenRouter: Fetch from auth/key endpoint because CORS often hides the header
+            fetch('https://openrouter.ai/api/v1/auth/key', {
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            }).then(r => r.json()).then(authData => {
+                if (authData && authData.data) {
+                    const d = authData.data;
+                    let rem = "";
+                    if (typeof d.limit_remaining === 'number') {
+                        rem = d.limit_remaining;
+                    } else if (d.rate_limit && typeof d.rate_limit.requests === 'number') { // Fallback to RPM limit or similar if limit_remaining isn't there
+                        rem = d.rate_limit.requests;
+                    } else if (typeof d.limit === 'number' && typeof d.usage === 'number') {
+                        rem = `$${(d.limit - d.usage).toFixed(4)}`;
+                    }
+                    if (rem !== "") {
+                        chrome.storage.local.set({ openrouterRemaining: rem });
+                    }
+                }
+            }).catch(e => console.error("Error fetching OpenRouter limit:", e));
+        }
     }
 
     const data = await response.json();

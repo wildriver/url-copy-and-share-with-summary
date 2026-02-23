@@ -3,7 +3,7 @@
 An intelligent Chrome extension that helps you copy URLs in various formats, generates AI-powered summaries, extracts smart hashtags, and creates stunning social media eye-catch images.
 
 ## ✨ New in v2.4.x
-- **API Resilience & Rate Limit Tracking**: The extension now displays your remaining daily API requests directly in the popup, so you know exactly how much quota you have left.
+- **API Resilience & Rate Limit Tracking**: The extension now displays your remaining daily API requests directly in the popup, so you know exactly how much quota you have left. (Fixed OpenRouter limits via `/auth/key` in v2.4.1)
 - **Smart Fallback Mechanism**: If your primary AI provider (e.g., Groq) hits its rate limit, the extension will automatically switch to your secondary provider (e.g., OpenRouter) to ensure your workflow is never interrupted.
 - **App Rename & New Branding**: Sleek new "URL Copy with Summary" logo and naming.
 - **5 Eye-catch Templates**: Choose from Modern Gradient, Classic White, Navy Professional, Dark Mode Pop, and Elegant Gold.
