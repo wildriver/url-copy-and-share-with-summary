@@ -5,7 +5,6 @@ const copyText = async text => {
         await navigator.clipboard.writeText(text);
         showCopied();
     } catch (err) {
-        // Fallback for older browsers or restricted contexts
         const copyTextArea = document.querySelector("#copy-textarea");
         copyTextArea.value = text;
         copyTextArea.style.display = "block";
@@ -85,9 +84,6 @@ const updateCopyPreview = (data, type = "simple") => {
     const text = formatTemplate(type, data.title, data.url);
     const previewArea = document.getElementById('copy-preview');
     previewArea.value = text;
-    // Auto-expand preview or just keep fixed height? Fixed height is better for popup stability.
-    // previewArea.style.height = 'auto';
-    // previewArea.style.height = previewArea.scrollHeight + 'px';
 }
 
 const updatePreview = (title, url) => {
@@ -96,24 +92,46 @@ const updatePreview = (title, url) => {
     document.getElementById('share-preview').value = text;
 }
 
-const updateAiDependentUI = (hasApiKey, hasWebhook, isShareable) => {
-    const aiElements = document.querySelectorAll('.ai-dependent');
+const updateVisibilityUI = (settings, isShareable) => {
     const summaryVal = document.getElementById("summary-text").value;
-    const hasSummary = summaryVal && summaryVal !== chrome.i18n.getMessage("summarizing");
+    const hasSummary = summaryVal && summaryVal !== chrome.i18n.getMessage("summarizing") && !summaryVal.startsWith("Error:");
+    const hasApiKey = !!settings.apiKey;
+    const showAi = settings.showAi !== false;
+    const showQr = settings.showQr !== false;
 
-    aiElements.forEach(el => {
-        // Summary checkbox depends on summary existing
-        if (el.id === 'opt-summary' || el.id === 'summaryUrl') {
-            el.disabled = !hasApiKey || !isShareable || !hasSummary;
-        } else if (el.id === 'share-slack') {
-            el.disabled = !hasApiKey || !isShareable || !hasWebhook;
-        } else {
-            el.disabled = !hasApiKey || !isShareable;
-        }
-    });
+    // AI Section Visibility
+    const aiSection = document.getElementById('result-section');
+    aiSection.style.display = (showAi && hasApiKey && isShareable) ? 'block' : 'none';
 
+    // QR Section Visibility
+    const qrSection = document.getElementById('tools-section');
+    qrSection.style.display = (showQr) ? 'block' : 'none';
+
+    // AI Dependent Buttons / Options
+    const summaryUrlBtn = document.getElementById('summaryUrl');
+    summaryUrlBtn.style.display = (showAi && hasApiKey && hasSummary) ? 'inline-block' : 'none';
+
+    const optSummaryLabel = document.getElementById('opt-summary').closest('.checkbox-item');
+    optSummaryLabel.style.display = (showAi && hasApiKey && hasSummary) ? 'flex' : 'none';
+
+    const optImageLabel = document.getElementById('opt-image').closest('.checkbox-item');
+    optImageLabel.style.display = (showAi && hasApiKey) ? 'flex' : 'none';
+
+    const optHashtagsLabel = document.getElementById('opt-hashtags').closest('.checkbox-item');
+    optHashtagsLabel.style.display = (showAi && hasApiKey) ? 'flex' : 'none';
+
+    // Slack Button
+    const slackBtn = document.getElementById('share-slack');
+    slackBtn.style.display = (settings.slackWebhook && isShareable) ? 'flex' : 'none';
+
+    // Social buttons general shareability
     const shareBtns = document.querySelectorAll('.social-btn:not(.ai-dependent)');
     shareBtns.forEach(btn => btn.disabled = !isShareable);
+
+    // AI Dependent inputs
+    document.querySelectorAll('.ai-dependent').forEach(el => {
+        el.disabled = !hasApiKey || !isShareable;
+    });
 
     const aiMenus = document.querySelectorAll('.ai-menu');
     aiMenus.forEach(btn => btn.disabled = !hasApiKey || !isShareable);
@@ -140,8 +158,9 @@ const renderDynamicButtons = (enabledButtons, data) => {
     });
 }
 
+let currentCopyFormat = "simple";
+
 const onInit = async () => {
-    // i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const msg = chrome.i18n.getMessage(el.getAttribute('data-i18n'));
         if (msg) el.textContent = msg;
@@ -152,11 +171,7 @@ const onInit = async () => {
 
     const settings = await chrome.storage.sync.get(['apiKey', 'slackWebhook', 'enabledButtons', 'showAi', 'showQr']);
 
-    // UI Toggles
-    if (settings.showAi === false) document.querySelector('.ai-section').style.display = 'none';
-    if (settings.showQr === false) document.querySelector('.qr-section').style.display = 'none';
-
-    updateAiDependentUI(!!settings.apiKey, !!settings.slackWebhook, data.isShareable);
+    updateVisibilityUI(settings, data.isShareable);
     renderDynamicButtons(settings.enabledButtons, data);
 
     if (!data.isShareable) {
@@ -165,11 +180,8 @@ const onInit = async () => {
         info.style.color = "#ff6b6b";
     }
 
-    // Initial Preview
     updatePreview(data.title, data.url);
     updateCopyPreview(data, "simple");
-
-    // Initial copy
     copyText(formatTemplate("simple", data.title, data.url));
 
     // Event Listeners
@@ -192,12 +204,12 @@ const onInit = async () => {
         updateCopyPreview(data, "summaryUrl");
     };
 
-    // Checkboxes change preview
     document.querySelectorAll('.checkbox-item input').forEach(input => {
-        input.onchange = () => updatePreview(data.title, data.url);
+        input.onchange = () => {
+            updatePreview(data.title, data.url);
+            updateVisibilityUI(settings, data.isShareable);
+        };
     });
-
-    let currentCopyFormat = "simple";
 
     // AI Summary
     document.getElementById("summarize").onclick = async () => {
@@ -216,7 +228,7 @@ const onInit = async () => {
             });
             const summary = await window.aiService.getSummary(results[0].result);
             area.value = summary;
-            updateAiDependentUI(!!settings.apiKey, !!settings.slackWebhook, data.isShareable);
+            updateVisibilityUI(settings, data.isShareable);
             updatePreview(data.title, data.url);
             updateCopyPreview(data, currentCopyFormat);
         } catch (e) {
